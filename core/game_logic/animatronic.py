@@ -8,6 +8,8 @@ class Animatronic:
         self.time_in_position = 0
         self.at_door_since = None
         self.attack_delay = 3
+        self.is_retreating = False
+        self.wait_before_retreat = random.uniform(5, 10)
 
     @property
     def current_position(self):

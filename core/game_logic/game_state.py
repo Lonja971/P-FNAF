@@ -1,5 +1,4 @@
-import threading
-import time
+import threading, time, random
 from core.game_logic.animatronic import Animatronic
 
 def debug_log(message):
@@ -64,6 +63,7 @@ class GameState:
                 self.advance_time()
                 self.consume_power()
                 self.update_comment()
+                self.update_animatronics()
 
     def advance_time(self):
         self.time["min"] += self.time_tick
@@ -131,3 +131,40 @@ class GameState:
         self.camera['is_open'] = False
         self.doors = {"left": False, "right": False}
         self.light = {"left": False, "right": False}
+
+    def update_animatronics(self):
+        for anim in self.animatronics.values():
+            anim.time_in_position += 0.5
+
+            # Рандомний рух через 2-5 секунд
+            if anim.time_in_position >= random.uniform(2, 5):
+                anim.advance()
+                debug_log(f"{anim.name} moved to {anim.current_position}")
+
+            # Якщо біля дверей
+            if anim.is_at_door():
+                side = "left" if anim.name == "Bonnie" else "right"
+                if not self.doors[side]:
+                    anim.at_door_since = anim.at_door_since or time.time()
+
+                    # Якщо двері відкриті і чекає довше delay — атакує
+                    if time.time() - anim.at_door_since >= anim.attack_delay:
+                        self.game_status = {
+                            "is_going": False,
+                            "reason": "killed",
+                            "killed_by": anim.name
+                        }
+                        self.is_alive = {"status": False, "killed_by": anim.name}
+                        debug_log(f"{anim.name} напав!")
+                else:
+                    anim.at_door_since = None  # двері закриті — скидаємо таймер
+            else:
+                anim.at_door_since = None
+
+    def get_animatronics_at_doors(self):
+        result = {"left": None, "right": None}
+        for anim in self.animatronics.values():
+            if anim.is_at_door():
+                side = "left" if anim.name == "Bonnie" else "right"
+                result[side] = anim.name
+        return result
