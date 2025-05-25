@@ -1,0 +1,14 @@
+{
+    "1": {
+        "animatronics": {
+            "Bonnie": {
+                "wait_delay_range": [2, 5],
+                "attack_delay": 3
+            },
+            "Chica": {
+                "wait_delay_range": [2, 5],
+                "attack_delay": 3
+            }
+        }
+    }
+}

@@ -131,27 +131,34 @@ class GameRenderer:
         return OFFICE_CENTER
 
     def get_left_door(self, door_animatronics):
-        if self.state.doors["left"]:
-            if self.state.light["left"]:
-                self.state.add_comment("Бонні в дверях...")
-            return DOOR_LEFT_CLOSED
+        door_picture = DOOR_LEFT
         if self.state.light["left"]:
             if door_animatronics["left"]:
-                return DOOR_LEFT_BONNIE
+                if self.state.doors["left"]:
+                    self.state.add_comment("Бонні в дверях...")
+                door_picture = DOOR_LEFT_BONNIE
             else:
                 self.state.add_comment("Нікого немає...")
-                return DOOR_LEFT_LIGHT
-        return DOOR_LEFT
+                door_picture = DOOR_LEFT_LIGHT
+            
+        if self.state.doors["left"]:
+            door_picture = DOOR_LEFT_CLOSED
+
+        return door_picture
+
 
     def get_right_door(self, door_animatronics):
-        if self.state.doors["right"]:
-            if self.state.light["right"]:
-                self.state.add_comment("Чіка в дверях...")
-            return DOOR_RIGHT_CLOSED
+        door_picture = DOOR_RIGHT
         if self.state.light["right"]:
             if door_animatronics['right']:
-                return DOOR_RIGHT_CHICA
+                if self.state.doors["right"]:
+                    self.state.add_comment("Чіка в дверях...")
+                door_picture = DOOR_RIGHT_CHICA
             else:
                 self.state.add_comment("Нікого немає...")
-                return DOOR_RIGHT_LIGHT
-        return DOOR_RIGHT
+                door_picture = DOOR_RIGHT_LIGHT
+            
+        if self.state.doors["right"]:
+            door_picture = DOOR_RIGHT_CLOSED
+            
+        return door_picture

@@ -1,15 +1,24 @@
-import threading, time, random
+import threading, time, json
 from core.game_logic.animatronic import Animatronic
 
 def debug_log(message):
     with open("debug_log.txt", "a", encoding="utf-8") as f:
         f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
 
+def load_json_template(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
 class GameState:
-    def __init__(self):
+    def __init__(self, night_index=1):
+        animatronic_templates = load_json_template("config/animatronics.json")
+        night_templates = load_json_template("config/nights.json")
+
+        self.night_config = night_templates[str(night_index)]
         self.time = {"hour_index": 0, "min": 0}
         self.time_tick = 0.5
         self.winning_hour_index = 6
+        self.office_position_index = 11
         
         self.power = 100
         self.power_usage = {
@@ -28,10 +37,6 @@ class GameState:
             "reason": None,
             "killed_by": None
         }
-        self.is_alive = {
-            "status": True,
-            "killed_by": None
-        }
         self.camera = {
             "is_open": False,
             "position": 1
@@ -42,13 +47,27 @@ class GameState:
             "time": 0,
             "text": None 
         }
+        self.doors_index = {
+            8: "left",
+            10: "right"
+        }
         self.doors = {"left": False, "right": False}
         self.light = {"left": False, "right": False}
 
-        self.animatronics = {
-            "Bonnie": Animatronic("Bonnie", ["ShowStage", "DiningArea", "Backstage", "Hallway", "LeftDoor"]),
-            "Chica": Animatronic("Chica", ["ShowStage", "DiningArea", "Restroom", "Kitchen", "RightDoor"])
-        }
+        self.animatronics = {}
+        for name, base_data in animatronic_templates.items():
+            if name not in self.night_config["animatronics"]:
+                continue
+
+            night_data = self.night_config["animatronics"][name]
+            self.animatronics[name] = Animatronic(
+                name=name,
+                default_position_index=base_data["default_possition_index"],
+                path_graph=base_data["path_graph"],
+                attack_trigger=base_data["attack_trigger"],
+                wait_delay_range=night_data["wait_delay_range"],
+                attack_delay=night_data["attack_delay"]
+            )
         
         self.lock = threading.Lock()
 
@@ -114,7 +133,6 @@ class GameState:
     def update_comment(self):
         if self.comment["text"]:
             self.comment["time"] += 0.5
-            debug_log(f"Updating time: {self.comment["time"]}")
             if self.comment["time"] >= self.comment_time:
                 self.comment = {
                     "time": 0,
@@ -134,37 +152,25 @@ class GameState:
 
     def update_animatronics(self):
         for anim in self.animatronics.values():
-            anim.time_in_position += 0.5
+            anim.advance(self.office_position_index)
 
-            # Рандомний рух через 2-5 секунд
-            if anim.time_in_position >= random.uniform(2, 5):
-                anim.advance()
-                debug_log(f"{anim.name} moved to {anim.current_position}")
+            #---ПЕРЕВІРИТИ-АТАКУ---
+            if anim.is_attacking:
+                side = self.doors_index[anim.attack_trigger["position"]]
 
-            # Якщо біля дверей
-            if anim.is_at_door():
-                side = "left" if anim.name == "Bonnie" else "right"
                 if not self.doors[side]:
-                    anim.at_door_since = anim.at_door_since or time.time()
-
-                    # Якщо двері відкриті і чекає довше delay — атакує
-                    if time.time() - anim.at_door_since >= anim.attack_delay:
-                        self.game_status = {
-                            "is_going": False,
-                            "reason": "killed",
-                            "killed_by": anim.name
-                        }
-                        self.is_alive = {"status": False, "killed_by": anim.name}
-                        debug_log(f"{anim.name} напав!")
+                    self.game_status = {
+                        "is_going": False,
+                        "reason": "killed",
+                        "killed_by": anim.name
+                    }
                 else:
-                    anim.at_door_since = None  # двері закриті — скидаємо таймер
-            else:
-                anim.at_door_since = None
+                    anim.reset_position()
 
     def get_animatronics_at_doors(self):
-        result = {"left": None, "right": None}
+        result = {"left": [], "right": []}
         for anim in self.animatronics.values():
-            if anim.is_at_door():
-                side = "left" if anim.name == "Bonnie" else "right"
-                result[side] = anim.name
+            if anim.current_position_index in self.doors_index:
+                door_side = self.doors_index[anim.current_position_index]
+                result[door_side].append(anim.name)
         return result
