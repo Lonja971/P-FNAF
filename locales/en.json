@@ -23,5 +23,8 @@
     "bonnie_in_the_door": "Bonnie is at the door...",
     "chica_in_the_door": "Chica is at the door...",
     "no_one": "No one is there...",
-    "ho_ho_ho": "Ho Ho Ho"
+    "ho_ho_ho": "Ho Ho Ho",
+
+    "NO_ONE_THERE": " NO ONE THERE ",
+    "CLOSED": "  CLOSED  "
 }

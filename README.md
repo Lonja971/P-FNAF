@@ -17,7 +17,7 @@ This is a terminal-based game inspired by **Five Nights at Freddy's**, built usi
 ## 📦 Installation
 
 > ❗ Requires Python 3.8 or higher  
-> ❗ Requires the `curses` module (built-in on Linux/macOS)
+> ❗ Requires the `curses` module (built-in on Linux/macOS) (or `pip install windows-curses` for Windows)
 
 1. Clone the repository:
    ```bash
