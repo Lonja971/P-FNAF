@@ -1,0 +1,27 @@
+{
+    "have_a_good_shift": "Удачної зміни, {name}",
+    "new_game": "Нова гра",
+    "continue": "Продовжити",
+    "logout": "Вийти",
+    "change_language": "Змінити мову",
+    "wrong_selection": "Невірний вибір. Спробуйте ще раз.",
+
+    "manager": "Менеджер",
+    "me": "Я",
+    "what_is_your_name": "Як звуть нашого нового охоронця?",
+    "I_didn't_hear": "Вибачте, я нерозчув...",
+    "my_name_is": "Мене звати {name}.",
+    "welcome_to_the_pizzeria": "Вітаю в піцерії, {name}!",
+
+    "night": "Ніч",
+    "energy": "Енергія",
+    "exit": "Вихід",
+    "survived_until_the_morning": "Ви дожили до ранку!",
+    "caught": "Пійманий {killed_by}...",
+    "the_reason_is_unknown": "Причина невідома...",
+    "press_q_to_exit": "Натисніть 'q', щоб вийти.",
+    "bonnie_in_the_door": "Бонні в дверях...",
+    "chica_in_the_door": "Чіка в дверях...",
+    "no_one": "Нікого немає...",
+    "ho_ho_ho": "Хо Хо Хо"
+}

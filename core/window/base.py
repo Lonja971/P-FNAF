@@ -1,4 +1,4 @@
-import json, os
+import json, os, time
 
 class Window:
     def render(self):
@@ -62,3 +62,7 @@ class Window:
         """
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(new_data, f, indent=4, ensure_ascii=False)
+
+    def debug_log(message):
+        with open("debug_log.txt", "a", encoding="utf-8") as f:
+            f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")

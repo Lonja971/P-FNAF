@@ -1,9 +1,10 @@
 from core.registry import window_registry
 
 class WindowManager:
-    def __init__(self, start_window_name):
+    def __init__(self, start_window_name, translator):
         self.window_stack = [window_registry[start_window_name]()]
         self.running = True
+        self.translator = translator
 
     def push(self, name, *args, **kwargs):
         if not isinstance(self.window_stack[-1], window_registry[name]):

@@ -1,7 +1,6 @@
 class InputHandler:
-    def __init__(self, state, running):
+    def __init__(self, state):
         self.state = state
-        self.running = running
 
     def handle_key(self, key, current_view):
         updated_view = current_view
@@ -31,7 +30,5 @@ class InputHandler:
             elif current_view == "right":
                 self.state.light_handle("right")
             should_render = True
-        elif key == ord('q'):
-            self.running = False
 
         return updated_view, should_render

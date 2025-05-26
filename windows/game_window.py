@@ -1,15 +1,10 @@
 import time, curses, random
-
 from core.window.base import Window
 from core.game_logic.game_state import GameState
 
 from ui.game.renderer import GameRenderer
 from ui.game.loop import GameLoop
 from ui.game.input_handler import InputHandler
-
-def debug_log(message):
-    with open("debug_log.txt", "a", encoding="utf-8") as f:
-        f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
 
 class GameWindow(Window):
     def __init__(self, current_night=1):
@@ -24,7 +19,7 @@ class GameWindow(Window):
         self.is_flickering = False
         self.flicker_timer = 0
 
-        self.input_handler = InputHandler(self.state, self.running)
+        self.input_handler = InputHandler(self.state)
 
     def render_window(self, wm):
         loop = GameLoop(self)
@@ -49,30 +44,41 @@ class GameWindow(Window):
             #---КЛІКИ---
             key = self.stdscr.getch()
             if key != -1:
-                updated_view, should_render = self.input_handler.handle_key(key, self.current_view)
-                self.current_view = updated_view
-                if should_render:
-                    self.renderer.render_content(self.current_view, self.door_animatronics, self.is_flickering)
+                if not self.state.is_pause:
+                    updated_view, should_render = self.input_handler.handle_key(key, self.current_view)
+                    self.current_view = updated_view
+                    if should_render:
+                        self.renderer.render_content(self.current_view, self.door_animatronics, self.is_flickering)
+                        self.renderer.render_bottom()
+
+                if key == ord('q'):
+                    self.running = False
+                elif key == ord('p'):
+                    self.state.is_pause = not self.state.is_pause
 
             #---ОНОВЛЕННЯ---
-            if time.time() - last_update >= 0.5:
-                self.update_data()
+            if not self.state.is_pause:
+                if time.time() - last_update >= 0.5:
+                    self.update_data()
 
-                if not self.state.game_status["is_going"]:
-                    if self.state.game_status["reason"] == "killed":
-                        self.renderer.render_screamer(self.state.game_status["killed_by"])
+                    if not self.state.game_status["is_going"]:
+                        if self.state.game_status["reason"] == "killed":
+                            self.renderer.render_screamer(self.state.game_status["killed_by"])
 
-                    self.renderer.render_game_over()
-                    while True:
-                        key = self.stdscr.getch()
-                        if key == ord('q'):
-                            self.running = False
-                            break
-                        time.sleep(0.1)
-                    break
+                        self.renderer.render_game_over()
+                        while True:
+                            key = self.stdscr.getch()
+                            if key == ord('q'):
+                                self.running = False
+                                break
+                            time.sleep(0.1)
+                        break
 
-                last_update = time.time()
-            time.sleep(0.05)
+                    last_update = time.time()
+                time.sleep(0.05)
+            
+            else:
+                self.renderer.render_content(self.current_view, self.door_animatronics, self.is_flickering)
     
     def update_data(self):
         self.door_animatronics = self.state.get_animatronics_at_doors()
@@ -96,3 +102,9 @@ class GameWindow(Window):
             if self.next_flicker_in <= 0:
                 self.is_flickering = True
                 self.renderer.render_content(self.current_view, self.door_animatronics, self.is_flickering)
+
+    def add_event_comment(self, comment_text):
+        self.event_comment = {
+            "time": 0,
+            "text": comment_text
+        }

@@ -1,12 +1,14 @@
 import curses, time
-from ui.pictures.screamers import BONNIE_SCREAMER_DARK, CHICA_SCREAMER_DARK
-from ui.pictures.logo import GAME_OVER_PICTURE_DARK, SIX_AM_PICTURE_DARK
+from config.animatronics import ANIMATRONICS
+from ui.sprites.logo import GAME_OVER_PICTURE_DARK, SIX_AM_PICTURE_DARK
+from ui.sprites.office import PAUSE
+from ui.sprites.office import OFFICE_CENTER
+from ui.sprites.left_door import DOOR_LEFT_LIGHT, DOOR_LEFT, DOOR_LEFT_CLOSED, DOOR_LEFT_BONNIE
+from ui.sprites.right_door import DOOR_RIGHT, DOOR_RIGHT_CLOSED, DOOR_RIGHT_LIGHT, DOOR_RIGHT_CHICA
+from core.translator import Translator
+from core.window.base import Window
 
-from ui.pictures.office_pictures import OFFICE_CENTER
-from ui.pictures.left_door import DOOR_LEFT_LIGHT, DOOR_LEFT, DOOR_LEFT_CLOSED, DOOR_LEFT_BONNIE
-from ui.pictures.right_door import DOOR_RIGHT, DOOR_RIGHT_CLOSED, DOOR_RIGHT_LIGHT, DOOR_RIGHT_CHICA
-
-class GameRenderer:
+class GameRenderer(Window):
     def __init__(self, stdscr, state, current_night):
         self.stdscr = stdscr
         self.state = state
@@ -14,6 +16,9 @@ class GameRenderer:
         self._init_colors()
         self.left_padding = 2
         self.current_night = current_night
+        self.action_comment = None
+
+        self.translator = Translator()
 
     def _init_colors(self):
         curses.start_color()
@@ -44,15 +49,15 @@ class GameRenderer:
         self.stdscr.attron(curses.color_pair(1))
         self.stdscr.addstr(0, 0, "=" * 100)
         self.stdscr.addstr(1, 0, " " * 100)
-        self.stdscr.addstr(1, self.left_padding, f"Ніч: {self.current_night} | {hours}:{minutes}   Енергія: {power}% :{'[]' * power_usage["items"]}")
+        self.stdscr.addstr(1, self.left_padding, f"{self.translator.t("night")}: {self.current_night} | {hours}:{minutes}   {self.translator.t("energy")}: {power}% :{'[]' * power_usage["items"]}")
         self.stdscr.addstr(2, 0, "=" * 100)
         self.stdscr.attroff(curses.color_pair(1))
         self.stdscr.refresh()
 
     def render_bottom(self):
-        action_comment = self.state.action_comment
+        action_comment = self.action_comment
         event_comment = self.state.event_comment["text"] if self.state.event_comment["text"] else ""
-        line_content = f"← A  |  → D  |  Q - Вихід    {action_comment.ljust(20) if action_comment else ' ' * 20}{event_comment}"
+        line_content = f"← A  |  → D  |  Q - {self.translator.t("exit")}    {action_comment.ljust(20) if action_comment else ' ' * 20}{event_comment}"
 
         self.stdscr.attron(curses.color_pair(2))
         self.stdscr.addstr(33, 0, "=" * 100)
@@ -70,7 +75,9 @@ class GameRenderer:
             self.stdscr.clrtoeol()
 
         lines = []
-        if current_view == "center":
+        if self.state.is_pause == True:
+            lines = PAUSE
+        elif current_view == "center":
             lines = self.get_office()
         elif current_view == "left":
             lines = self.get_left_door(door_animatronics)
@@ -86,12 +93,7 @@ class GameRenderer:
     def render_screamer(self, killer_name):
         self.stdscr.clear()
 
-        if killer_name == "Bonnie":
-            lines = BONNIE_SCREAMER_DARK
-        elif killer_name == "Chica":
-            lines = CHICA_SCREAMER_DARK
-        else:
-            lines = BONNIE_SCREAMER_DARK
+        lines = ANIMATRONICS[killer_name]["screamer_sprite"]
 
         self.stdscr.attron(curses.color_pair(10))
 
@@ -124,14 +126,14 @@ class GameRenderer:
                 self.stdscr.addstr(start_line + i, 10, line[:80])
 
         if reason == "morning":
-            self.stdscr.addstr(32, 10, "Ви дожили до ранку!")
+            self.stdscr.addstr(32, 10, {self.translator.t("survived_until_the_morning")})
         elif reason == "killed":
-            killed_by = self.state.game_status.get("killed_by", "невідомо")
-            self.stdscr.addstr(31, 10, f"Пійманий {killed_by}...")
+            killed_by = self.state.game_status.get("killed_by", "unknown")
+            self.stdscr.addstr(31, 10, self.translator.t("caught", killed_by=killed_by))
         else:
-            self.stdscr.addstr(31, 10, "Причина невідома...kek")
+            self.stdscr.addstr(31, 10, self.translator.t("the_reason_is_unknown"))
 
-        self.stdscr.addstr(34, 10, "Натисніть 'q', щоб вийти.", curses.A_BOLD)
+        self.stdscr.addstr(34, 10, self.translator.t("press_q_to_exit"), curses.A_BOLD)
         self.stdscr.refresh()
 
     def get_office(self):
@@ -144,16 +146,16 @@ class GameRenderer:
         if self.state.light["left"]:
             if door_animatronics["left"]:
                 if self.state.doors["left"]:
-                    action_comment = "Бонні в дверях..."
+                    action_comment = self.translator.t("bonnie_in_the_door")
                 door_picture = DOOR_LEFT_BONNIE
             else:
-                action_comment = "Нікого немає..."
+                action_comment = self.translator.t("no_one")
                 door_picture = DOOR_LEFT_LIGHT
             
         if self.state.doors["left"]:
             door_picture = DOOR_LEFT_CLOSED
 
-        self.state.add_action_comment(action_comment)
+        self.add_action_comment(action_comment)
         return door_picture
 
     def get_right_door(self, door_animatronics):
@@ -163,14 +165,17 @@ class GameRenderer:
         if self.state.light["right"]:
             if door_animatronics['right']:
                 if self.state.doors["right"]:
-                    action_comment = "Чіка в дверях..."
+                    action_comment = self.translator.t("chica_in_the_door")
                 door_picture = DOOR_RIGHT_CHICA
             else:
-                action_comment = "Нікого немає..."
+                action_comment = self.translator.t("no_one")
                 door_picture = DOOR_RIGHT_LIGHT
             
         if self.state.doors["right"]:
             door_picture = DOOR_RIGHT_CLOSED
         
-        self.state.add_action_comment(action_comment)
+        self.add_action_comment(action_comment)
         return door_picture
+    
+    def add_action_comment(self, comment_text=None):
+        self.action_comment = comment_text

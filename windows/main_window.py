@@ -1,7 +1,7 @@
 from core.window.base import Window
 from utils.terminal import clear
 from ui.elements import title, input_field, render_menu
-from ui.pictures.logo import LOGO_PICTURE_DARK
+from ui.sprites.logo import LOGO_PICTURE_DARK
 from config.nights import NIGHTS
 
 class MainWindow(Window):
@@ -27,12 +27,13 @@ class MainWindow(Window):
 
         clear()
         print(LOGO_PICTURE_DARK)
-        print(f"{left_padding}Удачної зміни, {save["player"]["name"]}\n")
+        print(f"{left_padding}{wm.translator.t("have_a_good_shift", name=save["player"]["name"])}\n")
 
         menu_actions = render_menu([
-            (f"Нова гра", None, lambda wm: self.start_new_game(wm)),
-            (f"Продовжити {next_avaible_night}", None, lambda wm: wm.switch_to("game", next_avaible_night)),
-            (f"Вийти", "q", lambda wm: wm.exit()),
+            (wm.translator.t("new_game"), None, lambda wm: self.start_new_game(wm)),
+            (f"{wm.translator.t("continue")} {next_avaible_night}", None, lambda wm: wm.switch_to("game", next_avaible_night)),
+            (wm.translator.t("change_language"), None, lambda wm: wm.switch_to("change_lanquage")),
+            (wm.translator.t("logout"), "q", lambda wm: wm.exit()),
         ], left_padding)
         while True:
             choice = input_field()
@@ -41,4 +42,4 @@ class MainWindow(Window):
                 action(wm)
                 break
             else:
-                print(f"{left_padding}Невірний вибір. Спробуйте ще раз.")
+                print(f"{left_padding}{wm.translator.t("wrong_selection")}")

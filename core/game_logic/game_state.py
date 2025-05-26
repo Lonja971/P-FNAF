@@ -32,6 +32,7 @@ class GameState(Window):
             "camera": 0.03
         }
 
+        self.is_pause = False
         self.game_status = {
             "is_going": True,
             "reason": None,
@@ -47,7 +48,6 @@ class GameState(Window):
             "time": 0,
             "text": None 
         }
-        self.action_comment = None
         self.doors_index = {
             8: "left",
             10: "right"
@@ -80,6 +80,8 @@ class GameState(Window):
 
     def _game_tick_loop(self):
         while self.game_status["is_going"] and self.time["hour_index"] <= self.winning_hour_index:
+            if self.is_pause:
+                continue
             time.sleep(0.5)
             with self.lock:
                 self.advance_time()
@@ -98,12 +100,9 @@ class GameState(Window):
                 "reason": "morning"
             }
             save = self.load_config_templates("config/save.json")
-            debug_log(f"NI: {self.night_index} rec: {save["record_night"]}")
             if not save["record_night"] or self.night_index > save["record_night"]:
                 self.update_json_value("config/save.json", "record_night", self.night_index)
-                debug_log(f"SAved record: {save["record_night"]}")
             self.update_json_value("config/save.json", "complated_night", self.night_index)
-            debug_log(f"NI: {self.night_index} rec: {save["record_night"]}")
 
     def consume_power(self):
         power_usage = self.power_usage_table["default"]
@@ -155,9 +154,6 @@ class GameState(Window):
             "text": comment_text
         }
 
-    def add_action_comment(self, comment_text=None):
-        self.action_comment = comment_text
-
     def disable_all(self):
         self.camera['is_open'] = False
         self.doors = {"left": False, "right": False}
@@ -181,7 +177,7 @@ class GameState(Window):
                         "killed_by": anim.name
                     }
                 else:
-                    anim.reset_position()
+                    anim.reset_position(True)
 
     def get_animatronics_at_doors(self):
         result = {"left": [], "right": []}

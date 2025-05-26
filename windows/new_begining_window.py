@@ -6,14 +6,6 @@ from ui.elements import input_field, render_menu
 class NewBeginingWindow(Window):
     def __init__(self):
         self.default_interlocutor = "chief"
-        self.dialog_interlocutors = {
-            "chief": {
-                "name": "[ШЕФ]",
-            },
-            "me": {
-                "name": "[Я]",
-            }
-        }
 
     def ensure_save_file(self, save_path="config/save.json", template_path="config/save.template.json"):
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -32,30 +24,28 @@ class NewBeginingWindow(Window):
         except json.JSONDecodeError as e:
             return None
 
-    def print_dialog_phrase(self, text, who=None, is_new_line=False):
-        if who is None or who not in self.dialog_interlocutors:
-            who = self.default_interlocutor
-        print(f"{"\n" if is_new_line else ""}{self.dialog_interlocutors[who]["name"]} {text}")
+    def print_dialog_phrase(self, text, who, is_new_line=False):
+        print(f"{"\n" if is_new_line else ""}[{who}] {text}")
 
     def render_window(self, wm):
         clear()
         save = self.ensure_save_file()
 
         while True:
-            self.print_dialog_phrase("Як звуть нашого нового охоронця?")
+            self.print_dialog_phrase(wm.translator.t("what_is_your_name"), wm.translator.t("manager"))
             name = input_field()
             if not name.strip():
-                self.print_dialog_phrase("Вибачте, я нерозчув...", "", True)
+                self.print_dialog_phrase(wm.translator.t("I_didn't_hear"), wm.translator.t("manager"), "", True)
             else:
                 break
 
-        self.print_dialog_phrase(f"Мене звати {name}.", "me")
+        self.print_dialog_phrase(wm.translator.t("my_name_is", name=name), wm.translator.t("me"))
 
         save["player"]["name"] = name
         self.overwrite_json("config/save.json", save)
 
         time.sleep(1.5)
-        self.print_dialog_phrase(f"Вітаю в піцерії, {name}!", "", True)
+        self.print_dialog_phrase(wm.translator.t("welcome_to_the_pizzeria", name=name), wm.translator.t("manager"), True)
         time.sleep(3)
         clear()
         time.sleep(3)
