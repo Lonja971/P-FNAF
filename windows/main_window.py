@@ -2,23 +2,43 @@ from core.window.base import Window
 from utils.terminal import clear
 from ui.elements import title, input_field, render_menu
 from ui.pictures.logo import LOGO_PICTURE_DARK
+from config.nights import NIGHTS
 
 class MainWindow(Window):
+    def next_avaible_night(self, next_night_index):
+        if next_night_index in NIGHTS:
+            return next_night_index
+        else:
+            return self.next_avaible_night(next_night_index - 1)
+
+    def start_new_game(self, wm):
+        current_night = 1
+        self.update_json_value("config/save.json", "complated_night", 0)
+
+        wm.switch_to("game", current_night)
     def render_window(self, wm):
+        left_padding = "  "
+        save = self.load_save_data("config/save.json")
+        if not save:
+            return wm.switch_to("new_begining")
+        
+        next_night = save["complated_night"] + 1
+        next_avaible_night = self.next_avaible_night(next_night)
+
+        clear()
+        print(LOGO_PICTURE_DARK)
+        print(f"{left_padding}Удачної зміни, {save["player"]["name"]}\n")
+
+        menu_actions = render_menu([
+            (f"Нова гра", None, lambda wm: self.start_new_game(wm)),
+            (f"Продовжити {next_avaible_night}", None, lambda wm: wm.switch_to("game", next_avaible_night)),
+            (f"Вийти", "q", lambda wm: wm.exit()),
+        ], left_padding)
         while True:
-            clear()
-            print(LOGO_PICTURE_DARK)
-            title("Головне вікно")
-
-            menu_actions = render_menu([
-                ("Грати", None, lambda wm: wm.switch_to("game")),
-                ("Вийти", "q", lambda wm: wm.exit()),
-            ])
-
             choice = input_field()
             action = menu_actions.get(choice)
             if action:
                 action(wm)
                 break
             else:
-                print("Невірний вибір. Спробуйте ще раз.")
+                print(f"{left_padding}Невірний вибір. Спробуйте ще раз.")

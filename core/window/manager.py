@@ -5,12 +5,12 @@ class WindowManager:
         self.window_stack = [window_registry[start_window_name]()]
         self.running = True
 
-    def push(self, name):
+    def push(self, name, *args, **kwargs):
         if not isinstance(self.window_stack[-1], window_registry[name]):
-            self.window_stack.append(window_registry[name]())
+            self.window_stack.append(window_registry[name](*args, **kwargs))
 
-    def switch_to(self, name):
-        self.window_stack = [window_registry[name]()]
+    def switch_to(self, name, *args, **kwargs):
+        self.window_stack = [window_registry[name](*args, **kwargs)]
 
     def pop(self):
         if len(self.window_stack) > 1:

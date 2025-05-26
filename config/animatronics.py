@@ -7,7 +7,7 @@ ANIMATRONICS = {
             3: [2, 6],
             6: [7, 8],
             7: [8],
-            8: []
+            8: [11]
         },
         "attack_trigger": {
             "type": "position",
@@ -21,7 +21,7 @@ ANIMATRONICS = {
             2: [9, 5],
             5: [2, 9],
             9: [10],
-            10: []
+            10: [11]
         },
         "attack_trigger": {
             "type": "position",

@@ -1,8 +1,9 @@
 class InputHandler:
-    def __init__(self, state):
+    def __init__(self, state, running):
         self.state = state
+        self.running = running
 
-    def handle_key(self, key, current_view, power):
+    def handle_key(self, key, current_view):
         updated_view = current_view
         should_render = False
 
@@ -18,17 +19,17 @@ class InputHandler:
                 "center" if current_view == "left" else current_view
             )
             should_render = True
-        elif key == ord('l') and power > 0:
+        elif key == ord('l'):
             if current_view == "left":
-                self.state.doors["left"] = not self.state.doors["left"]
+                self.state.door_handle("left")
             elif current_view == "right":
-                self.state.doors["right"] = not self.state.doors["right"]
+                self.state.door_handle("right")
             should_render = True
-        elif key == ord('k') and power > 0:
+        elif key == ord('k'):
             if current_view == "left":
-                self.state.light["left"] = not self.state.light["left"]
+                self.state.light_handle("left")
             elif current_view == "right":
-                self.state.light["right"] = not self.state.light["right"]
+                self.state.light_handle("right")
             should_render = True
         elif key == ord('q'):
             self.running = False

@@ -12,8 +12,9 @@ def debug_log(message):
         f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
 
 class GameWindow(Window):
-    def __init__(self):
-        self.state = GameState()
+    def __init__(self, current_night=1):
+        self.state = GameState(current_night)
+        self.current_night = current_night
         self.door_animatronics = {"left": None, "right": None}
         self.current_view = "center"
         self.running = True
@@ -23,7 +24,7 @@ class GameWindow(Window):
         self.is_flickering = False
         self.flicker_timer = 0
 
-        self.input_handler = InputHandler(self.state)
+        self.input_handler = InputHandler(self.state, self.running)
 
     def render_window(self, wm):
         loop = GameLoop(self)
@@ -32,7 +33,7 @@ class GameWindow(Window):
 
     def _main(self, stdscr):
         self.stdscr = stdscr
-        self.renderer = GameRenderer(self.stdscr, self.state)
+        self.renderer = GameRenderer(self.stdscr, self.state, self.current_night)
 
         curses.curs_set(0)
         self.stdscr.nodelay(True)
@@ -48,7 +49,7 @@ class GameWindow(Window):
             #---КЛІКИ---
             key = self.stdscr.getch()
             if key != -1:
-                updated_view, should_render = self.input_handler.handle_key(key, self.current_view, self.state.power)
+                updated_view, should_render = self.input_handler.handle_key(key, self.current_view)
                 self.current_view = updated_view
                 if should_render:
                     self.renderer.render_content(self.current_view, self.door_animatronics, self.is_flickering)
@@ -76,6 +77,7 @@ class GameWindow(Window):
     def update_data(self):
         self.door_animatronics = self.state.get_animatronics_at_doors()
         self.update_flicker()
+        self.state.action_comment = None
 
         self.renderer.render_top()
         self.renderer.render_content(self.current_view, self.door_animatronics, self.is_flickering)

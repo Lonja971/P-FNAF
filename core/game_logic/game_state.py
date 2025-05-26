@@ -1,20 +1,20 @@
-import threading, time, json
+import threading, time
 from core.game_logic.animatronic import Animatronic
+from core.window.base import Window
+
+from config.animatronics import ANIMATRONICS
+from config.nights import NIGHTS
 
 def debug_log(message):
     with open("debug_log.txt", "a", encoding="utf-8") as f:
         f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
 
-def load_json_template(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-class GameState:
+class GameState(Window):
     def __init__(self, night_index=1):
-        animatronic_templates = load_json_template("config/animatronics.json")
-        night_templates = load_json_template("config/nights.json")
+        self.night_index = night_index
+        self.night_config = NIGHTS[night_index]
+        self.default_activation_time  = {'hour_index': 0, "min": 0}
 
-        self.night_config = night_templates[str(night_index)]
         self.time = {"hour_index": 0, "min": 0}
         self.time_tick = 0.5
         self.winning_hour_index = 6
@@ -26,10 +26,10 @@ class GameState:
             "spend": 0.1
         }
         self.power_usage_table = {
-            "default": 0.1,
-            "light": 0.1,
-            "closed": 0.3,
-            "camera": 0.1
+            "default": 0.03,
+            "light": 0.05,
+            "closed": 0.12,
+            "camera": 0.03
         }
 
         self.game_status = {
@@ -42,11 +42,12 @@ class GameState:
             "position": 1
         }
 
-        self.comment_time = 2
-        self.comment = {
+        self.event_comment_time = 2
+        self.event_comment = {
             "time": 0,
             "text": None 
         }
+        self.action_comment = None
         self.doors_index = {
             8: "left",
             10: "right"
@@ -55,7 +56,7 @@ class GameState:
         self.light = {"left": False, "right": False}
 
         self.animatronics = {}
-        for name, base_data in animatronic_templates.items():
+        for name, base_data in ANIMATRONICS.items():
             if name not in self.night_config["animatronics"]:
                 continue
 
@@ -66,7 +67,9 @@ class GameState:
                 path_graph=base_data["path_graph"],
                 attack_trigger=base_data["attack_trigger"],
                 wait_delay_range=night_data["wait_delay_range"],
-                attack_delay=night_data["attack_delay"]
+                attack_delay_range=night_data.get("attack_delay_range", None),
+                activation_time=night_data.get("activation_time", self.default_activation_time),
+                add_event_comment=self.add_event_comment
             )
         
         self.lock = threading.Lock()
@@ -76,12 +79,12 @@ class GameState:
         thread.start()
 
     def _game_tick_loop(self):
-        while self.game_status["is_going"] and self.power > 0 and self.time["hour_index"] <= self.winning_hour_index:
+        while self.game_status["is_going"] and self.time["hour_index"] <= self.winning_hour_index:
             time.sleep(0.5)
             with self.lock:
                 self.advance_time()
                 self.consume_power()
-                self.update_comment()
+                self.update_event_comment()
                 self.update_animatronics()
 
     def advance_time(self):
@@ -94,6 +97,13 @@ class GameState:
                 "is_going": False,
                 "reason": "morning"
             }
+            save = self.load_config_templates("config/save.json")
+            debug_log(f"NI: {self.night_index} rec: {save["record_night"]}")
+            if not save["record_night"] or self.night_index > save["record_night"]:
+                self.update_json_value("config/save.json", "record_night", self.night_index)
+                debug_log(f"SAved record: {save["record_night"]}")
+            self.update_json_value("config/save.json", "complated_night", self.night_index)
+            debug_log(f"NI: {self.night_index} rec: {save["record_night"]}")
 
     def consume_power(self):
         power_usage = self.power_usage_table["default"]
@@ -130,20 +140,23 @@ class GameState:
                 "spend": power_usage
             }
 
-    def update_comment(self):
-        if self.comment["text"]:
-            self.comment["time"] += 0.5
-            if self.comment["time"] >= self.comment_time:
-                self.comment = {
+    def update_event_comment(self):
+        if self.event_comment["text"]:
+            self.event_comment["time"] += 0.5
+            if self.event_comment["time"] >= self.event_comment_time:
+                self.event_comment = {
                     "time": 0,
                     "text": None
                 }
 
-    def add_comment(self, comment_text):
-        self.comment = {
+    def add_event_comment(self, comment_text):
+        self.event_comment = {
             "time": 0,
             "text": comment_text
         }
+
+    def add_action_comment(self, comment_text=None):
+        self.action_comment = comment_text
 
     def disable_all(self):
         self.camera['is_open'] = False
@@ -152,6 +165,9 @@ class GameState:
 
     def update_animatronics(self):
         for anim in self.animatronics.values():
+            if (self.time["hour_index"] * 60 + self.time["min"]) < (anim.activation_time["hour_index"] * 60 + anim.activation_time["min"]):
+                return
+            
             anim.advance(self.office_position_index)
 
             #---ПЕРЕВІРИТИ-АТАКУ---
@@ -174,3 +190,11 @@ class GameState:
                 door_side = self.doors_index[anim.current_position_index]
                 result[door_side].append(anim.name)
         return result
+    
+    def door_handle(self, door):
+        if self.power > 0:
+            self.doors[door] = not self.doors[door]
+
+    def light_handle(self, light_side):
+        if self.power > 0:
+            self.light[light_side] = not self.light[light_side]
