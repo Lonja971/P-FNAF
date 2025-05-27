@@ -27,11 +27,12 @@ class MainWindow(Window):
 
         clear()
         print(LOGO_PICTURE_DARK)
-        print(f"{left_padding}{wm.translator.t("have_a_good_shift", name=save["player"]["name"])}\n")
+        print(f"{left_padding}{wm.translator.t("have_a_good_shift", name=save["player"]["name"])}!")
+        print(f"{left_padding}{wm.translator.t("record_night")}: {save["record_night"]}\n")
 
         menu_actions = render_menu([
             (wm.translator.t("new_game"), None, lambda wm: self.start_new_game(wm)),
-            (f"{wm.translator.t("continue")} {next_avaible_night}", None, lambda wm: wm.switch_to("game", next_avaible_night)),
+            (f"{wm.translator.t("night")} {next_avaible_night}", None, lambda wm: wm.switch_to("game", next_avaible_night)),
             (wm.translator.t("change_language"), None, lambda wm: wm.switch_to("change_lanquage")),
             (wm.translator.t("logout"), "q", lambda wm: wm.exit()),
         ], left_padding)

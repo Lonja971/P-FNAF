@@ -29,6 +29,8 @@ class GameRenderer(Window):
         GRAY = 244
         curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(3, 160, -1)
+        curses.init_pair(4, 130, -1)
         curses.init_pair(10, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(11, GRAY, -1)
 
@@ -58,12 +60,31 @@ class GameRenderer(Window):
 
     def render_bottom(self):
         action_comment = self.action_comment
-        event_comment = self.state.event_comment["text"] if self.state.event_comment["text"] else ""
-        line_content = f"← A  |  → D  |  Q - {self.translator.t("exit")}    {action_comment.ljust(20) if action_comment else ' ' * 20}{event_comment}"
+        base_line = f"← A  |  → D  |  Q - {self.translator.t('exit')}    {action_comment.ljust(20) if action_comment else ' ' * 20}"
 
         self.stdscr.attron(curses.color_pair(2))
         self.stdscr.addstr(33, 0, "=" * 100)
-        self.stdscr.addstr(34, self.left_padding, line_content.ljust(100))
+        self.stdscr.addstr(34, self.left_padding, base_line)
+        self.stdscr.attroff(curses.color_pair(2))
+
+        x_offset = self.left_padding + len(base_line)
+
+        for name in ["Foxy", "Freddy"]:
+            comment = self.state.event_comments.get(name, {"text": "", "color": None})
+            text = comment.get("text") or ""
+            color = comment.get("color")
+
+            padded_text = text.ljust(20)
+
+            if color is not None:
+                self.stdscr.attron(curses.color_pair(color))
+            self.stdscr.addstr(34, x_offset, padded_text)
+            if color is not None:
+                self.stdscr.attroff(curses.color_pair(color))
+
+            x_offset += 20
+
+        self.stdscr.attron(curses.color_pair(2))
         self.stdscr.addstr(35, 0, "=" * 100)
         self.stdscr.attroff(curses.color_pair(2))
         self.stdscr.refresh()

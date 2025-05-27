@@ -3,7 +3,7 @@ NIGHTS = {
         "animatronics":{
             "Bonnie": {
                 "activation_time": {
-                    "hour_index": 4,
+                    "hour_index": 1,
                     "min": 0
                 },
                 "wait_delay_range": [4, 10],
@@ -14,7 +14,7 @@ NIGHTS = {
             },
             "Chica": {
                 "activation_time": {
-                    "hour_index": 4,
+                    "hour_index": 2,
                     "min": 0
                 },
                 "wait_delay_range": [4, 10],
@@ -25,11 +25,11 @@ NIGHTS = {
             },
             "Foxy": {
                 "activation_time": {
-                    "hour_index": 4,
+                    "hour_index": 3,
                     "min": 0
                 },
-                "wait_delay_range": [10, 20],
-                "attack_delay": [3, 4, 5]
+                "wait_delay_range": [20, 30],
+                "attack_delay": [5, 6, 7]
             }
         }
     },
@@ -43,7 +43,7 @@ NIGHTS = {
                 "wait_delay_range": [4, 8],
                 "attack_delay": {
                     "wait_time": [4, 5, 6, 7, 8, 9, 10],
-                    "need_time": [3, 4, 5]
+                    "need_time": [4, 5]
                 }
             },
             "Chica": {
@@ -54,7 +54,7 @@ NIGHTS = {
                 "wait_delay_range": [4, 8],
                 "attack_delay": {
                     "wait_time": [4, 5, 6, 7, 8, 9, 10],
-                    "need_time": [3, 4, 5]
+                    "need_time": [4, 5]
                 }
             },
             "Foxy": {
@@ -62,7 +62,7 @@ NIGHTS = {
                     "hour_index": 1,
                     "min": 0
                 },
-                "wait_delay_range": [10, 20],
+                "wait_delay_range": [30, 40],
                 "attack_delay": [3, 4, 5]
             },
             "Freddy": {
@@ -71,7 +71,7 @@ NIGHTS = {
                     "min": 0
                 },
                 "wait_delay_range": [15, 30],
-                "attack_delay": [3, 4, 5]
+                "attack_delay": [4, 5, 6]
             }
         }
     },
@@ -104,7 +104,7 @@ NIGHTS = {
                     "hour_index": 0,
                     "min": 0
                 },
-                "wait_delay_range": [10, 20],
+                "wait_delay_range": [25, 40],
                 "attack_delay": [3, 4, 5]
             },
             "Freddy": {
@@ -112,7 +112,7 @@ NIGHTS = {
                     "hour_index": 3,
                     "min": 0
                 },
-                "wait_delay_range": [10, 20],
+                "wait_delay_range": [10, 30],
                 "attack_delay": [3, 4, 5]
             }
         }
@@ -146,7 +146,7 @@ NIGHTS = {
                     "hour_index": 0,
                     "min": 0
                 },
-                "wait_delay_range": [10, 15],
+                "wait_delay_range": [20, 40],
                 "attack_delay": [3, 4, 5]
             },
             "Freddy": {
@@ -154,7 +154,7 @@ NIGHTS = {
                     "hour_index": 1,
                     "min": 0
                 },
-                "wait_delay_range": [10, 20],
+                "wait_delay_range": [10, 30],
                 "attack_delay": [3, 4, 5]
             }
         }

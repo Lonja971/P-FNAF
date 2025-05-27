@@ -26,10 +26,10 @@ class GameState(Window):
             "spend": 0.1
         }
         self.power_usage_table = {
-            "default": 0.04,
+            "default": 0.03,
             "light": 0.05,
-            "closed": 0.15,
-            "camera": 0.03
+            "closed": 0.10,
+            "camera": 0.05
         }
 
         self.is_pause = False
@@ -43,11 +43,9 @@ class GameState(Window):
             "position": 1
         }
 
-        self.event_comment_time = 1
-        self.event_comment = {
-            "time": 0,
-            "text": None 
-        }
+        self.event_comment_time = 1.5
+        self.event_comments = {}
+
         self.doors_index = {
             8: "left",
             10: "right"
@@ -69,12 +67,16 @@ class GameState(Window):
                 wait_delay_range=night_data["wait_delay_range"],
                 attack_delay=night_data.get("attack_delay", None),
                 activation_time=night_data.get("activation_time", self.default_activation_time),
-                add_event_comment=self.add_event_comment
+                add_event_comment=self.add_event_comment,
+                reduce_power=self.reduce_power
             )
         
         self.lock = threading.Lock()
 
     def game_start(self):
+        debug_log(" ")
+        debug_log(f" --- Night {self.night_index} ---")
+        debug_log(" ")
         thread = threading.Thread(target=self._game_tick_loop, daemon=True)
         thread.start()
 
@@ -86,7 +88,7 @@ class GameState(Window):
             with self.lock:
                 self.advance_time()
                 self.consume_power()
-                self.update_event_comment()
+                self.update_event_comments()
                 self.update_animatronics()
 
     def advance_time(self):
@@ -139,19 +141,22 @@ class GameState(Window):
                 "spend": power_usage
             }
 
-    def update_event_comment(self):
-        if self.event_comment["text"]:
-            self.event_comment["time"] += 0.5
-            if self.event_comment["time"] >= self.event_comment_time:
-                self.event_comment = {
-                    "time": 0,
-                    "text": None
-                }
+    def update_event_comments(self):
+        to_delete = []
 
-    def add_event_comment(self, comment_text):
-        self.event_comment = {
+        for name, comment in self.event_comments.items():
+            comment["time"] += 0.5
+            if comment["time"] >= self.event_comment_time:
+                to_delete.append(name)
+
+        for name in to_delete:
+            del self.event_comments[name]
+
+    def add_event_comment(self, name, comment_text, color=None):
+        self.event_comments[name] = {
             "time": 0,
-            "text": comment_text
+            "text": comment_text,
+            "color": color
         }
 
     def disable_all(self):
@@ -162,7 +167,7 @@ class GameState(Window):
     def update_animatronics(self):
         for anim in self.animatronics.values():
             if (self.time["hour_index"] * 60 + self.time["min"]) < (anim.activation_time["hour_index"] * 60 + anim.activation_time["min"]):
-                return
+                continue
             
             anim.advance(self.office_position_index, self.doors, self.doors_index)
 
@@ -188,6 +193,9 @@ class GameState(Window):
                 result[door_side].append(anim.name)
         return result
     
+    def reduce_power(self, amount):
+        self.power = max(0, self.power - amount)
+
     def door_handle(self, door):
         if self.power > 0:
             self.doors[door] = not self.doors[door]

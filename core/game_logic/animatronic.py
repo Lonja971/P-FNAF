@@ -7,7 +7,7 @@ def debug_log(message):
         f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
 
 class Animatronic:
-    def __init__(self, name, default_position_index, path_graph, attack_trigger, wait_delay_range, attack_delay, activation_time, add_event_comment):
+    def __init__(self, name, default_position_index, path_graph, attack_trigger, wait_delay_range, attack_delay, activation_time, add_event_comment, reduce_power):
         self.name = name
         self.path_graph = path_graph
         self.activation_time = activation_time
@@ -24,6 +24,7 @@ class Animatronic:
 
         self.attack_trigger = attack_trigger
         self.add_event_comment = add_event_comment
+        self.reduce_power = reduce_power
 
         if attack_trigger["type"] == "position":
             self.self_update_position = True
@@ -40,6 +41,7 @@ class Animatronic:
             self.laugh_number = 0
 
         elif attack_trigger["type"] == "run":
+            self.attack_power_cost = attack_trigger["power_cost"]
             self.self_update_position = False
             self.self_reseat = False
             self.is_running = False
@@ -98,32 +100,30 @@ class Animatronic:
 
         #---ФРЕДДІ---
         elif self.attack_trigger["type"] == "laugh" and self.laugh_number == self.attack_trigger["number"]:
-            debug_log(f"1 {self.name} збирається атакувати {self.laugh_number}")
-            debug_log(f"2 {self.name} збирається атакувати {self.time_before_attack} >= {self.current_attack_delay}")
+            debug_log(f"{self.name} збирається атакувати [{self.laugh_number}] {self.time_before_attack} >= {self.current_attack_delay}")
             if self.time_before_attack >= self.current_attack_delay:
                 self.current_position_index = office_position_index
                 self.is_attacking = True
-                self.add_event_comment(f"[{self.name}] {self.translator.t("angry_freddy_sounds")}")
+                debug_log(f"{self.name} АТАКУЄ")
+                self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("angry_freddy_sounds")}", 4)
             self.time_before_attack += 0.5
 
         #---ФОКСІ---
         elif self.attack_trigger["type"] == "run":
-            debug_log(" ")
-            debug_log(f"Фоксі діє, {self.active_pose} >= {self.attack_trigger["attack_pose"]}")
             if self.active_pose >= self.attack_trigger["attack_pose"]:
                 debug_log(f"Фоксі готовий до атаки {self.time_before_attack} >= {self.current_attack_delay}")
                 if not self.message_is_running:
                     self.message_is_running = True
-                    self.add_event_comment(f"[{self.name}] {self.translator.t("foxy_running")}")
+                    self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("foxy_running")}", 3)
 
                 if self.time_before_attack >= self.current_attack_delay:
                     debug_log("Фоксі АТАКУЄ")
                     self.current_position_index = office_position_index
                     self.is_attacking = True
-                    self.add_event_comment(f"[{self.name}] {self.translator.t("angry_foxy_sounds")}")
+                    self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("angry_foxy_sounds")}", 3)
+                    self.reduce_power(self.attack_power_cost)
                 else:
                     self.time_before_attack += 0.5
-                    debug_log(f"Фоксі чекає на атаку {self.time_before_attack}")
             elif self.time_in_position >= self.current_wait_delay:
                 self.active_pose += 1
                 self.time_in_position = 0
@@ -131,7 +131,6 @@ class Animatronic:
                 debug_log(f"Фоксі в новій позі: {self.active_pose}")
             else:
                 self.time_in_position += 0.5
-                debug_log(f"Фоксі чекає на зміну {self.time_in_position} (до {self.current_wait_delay})")
 
         #---ЗМІНА-ПОЗИЦІЇ---
         elif self.time_in_position >= self.current_wait_delay and self.self_update_position:
@@ -142,7 +141,7 @@ class Animatronic:
                 if self.attack_trigger["type"] == "laugh":
                     self.laugh_number += 1
                     debug_log(f"{self.name} Сміється [{self.laugh_number}] {LOCATION[self.current_position_index]["name"]}")
-                    self.add_event_comment(f"[{self.name}] {self.translator.t("ho_ho_ho")}")
+                    self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("ho_ho_ho")}", 4)
 
                 self.time_in_position = 0
                 self.set_new_wait_delay()

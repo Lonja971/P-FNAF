@@ -57,8 +57,9 @@ ANIMATRONICS = {
         },
         "attack_trigger": {
             "type": "run",
-            "attack_pose": 3,
-            "position": 8
+            "attack_pose": 4,
+            "position": 8,
+            "power_cost": 5,
         },
         "screamer_sprite": FOXY_SCREAMER_DARK
     }
