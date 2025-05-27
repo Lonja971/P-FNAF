@@ -67,7 +67,7 @@ class GameState(Window):
                 path_graph=base_data["path_graph"],
                 attack_trigger=base_data["attack_trigger"],
                 wait_delay_range=night_data["wait_delay_range"],
-                attack_delay_range=night_data.get("attack_delay_range", None),
+                attack_delay=night_data.get("attack_delay", None),
                 activation_time=night_data.get("activation_time", self.default_activation_time),
                 add_event_comment=self.add_event_comment
             )
@@ -164,7 +164,7 @@ class GameState(Window):
             if (self.time["hour_index"] * 60 + self.time["min"]) < (anim.activation_time["hour_index"] * 60 + anim.activation_time["min"]):
                 return
             
-            anim.advance(self.office_position_index)
+            anim.advance(self.office_position_index, self.doors, self.doors_index)
 
             #---ПЕРЕВІРИТИ-АТАКУ---
             if anim.is_attacking:
@@ -177,7 +177,8 @@ class GameState(Window):
                         "killed_by": anim.name
                     }
                 else:
-                    anim.reset_position(True)
+                    if anim.self_reseat == False:
+                        anim.reset_position(True)
 
     def get_animatronics_at_doors(self):
         result = {"left": [], "right": []}

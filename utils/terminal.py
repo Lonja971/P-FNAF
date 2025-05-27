@@ -6,3 +6,29 @@ def clear():
 def load_config(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+    
+def load_json_data(path):
+    if not os.path.exists(path):
+        return None
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data
+    except json.JSONDecodeError as e:
+        return None
+
+def ensure_json_file(save_path="config/save.json", template_path="config/save.template.json"):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    try:
+        with open(template_path, "r", encoding="utf-8") as template_file:
+            template_data = json.load(template_file)
+        with open(save_path, "w", encoding="utf-8") as save_file:
+            json.dump(template_data, save_file, indent=4, ensure_ascii=False)
+        return template_data
+    
+    except FileNotFoundError:
+        return None
+    except json.JSONDecodeError as e:
+        return None

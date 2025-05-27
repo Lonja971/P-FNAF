@@ -1,4 +1,4 @@
-![Logo](photos/WindowsTerminal_rHgM6ZulfO.png)
+![Logo](ui/logo.png)
 
 # 🕹️ Terminal FNaF (Five Nights at Freddy's) Clone
 

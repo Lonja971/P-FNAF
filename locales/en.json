@@ -24,11 +24,15 @@
     "chica_in_the_door": "Chica is at the door...",
     "no_one": "No one is there...",
     "ho_ho_ho": "Ho Ho Ho",
+    "angry_freddy_sounds": "Bum Bum",
+    "foxy_running": "Running...",
+    "angry_foxy_sounds": "Bum Bum",
 
     "NO_ONE_THERE": " NO ONE THERE ",
     "CLOSED": "  CLOSED  ",
 
     "bonnie_info": "{anim_name} likes to come to the left door.\nJust close it in front of his nose!",
     "chica_info": "{anim_name} likes to come to the right door.\nJust close it in front of her!",
-    "freddy_info": "{anim_name} laughs three times before the attack. \nDon't miss it!"
+    "freddy_info": "{anim_name} laughs three times before the attack.\nDon't miss it!",
+    "foxy_info": "{anim_name} runs into the office through the left door.\nWatch his position to react in time!"
 }

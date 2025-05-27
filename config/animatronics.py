@@ -1,4 +1,4 @@
-from ui.sprites.screamers import BONNIE_SCREAMER_DARK, CHICA_SCREAMER_DARK, FREADDY_SCREAMER_DARK
+from ui.sprites.screamers import BONNIE_SCREAMER_DARK, CHICA_SCREAMER_DARK, FREADDY_SCREAMER_DARK, FOXY_SCREAMER_DARK
 
 ANIMATRONICS = {
     "Bonnie": {
@@ -53,12 +53,13 @@ ANIMATRONICS = {
     "Foxy": {
         "default_possition_index": 12,
         "path_graph": {
-            12: [10],
-            10: [11]
+            12: [11],
         },
         "attack_trigger": {
             "type": "run",
-            "position": 10
-        }
+            "attack_pose": 3,
+            "position": 8
+        },
+        "screamer_sprite": FOXY_SCREAMER_DARK
     }
 }

@@ -116,7 +116,8 @@ class GameRenderer(Window):
         anim_info = {
             "Freddy": "freddy_info",
             "Chica": "chica_info",
-            "Bonnie": "bonnie_info"
+            "Bonnie": "bonnie_info",
+            "Foxy": "foxy_info"
         }
         self.stdscr.clear()
         reason = self.state.game_status.get("reason")
@@ -130,23 +131,24 @@ class GameRenderer(Window):
 
         for i, line in enumerate(picture_lines):
             if i + start_line < 30:
-                self.stdscr.addstr(start_line + i, 10, line[:80])
+                self.stdscr.addstr(start_line + i, 2, line[:80])
 
         if reason == "morning":
-            self.stdscr.addstr(32, 10, self.translator.t("survived_until_the_morning"))
+            self.stdscr.addstr(32, 2, self.translator.t("survived_until_the_morning"))
         elif reason == "killed":
             killed_by = self.state.game_status.get("killed_by", "unknown")
             info_lines = self.translator.t(anim_info[killed_by], anim_name=killed_by).split("\n")
             start_y = 33
-            start_x = 10
+            start_x = 2
 
-            self.stdscr.addstr(31, 10, self.translator.t("caught", killed_by=killed_by))
-            for i, line in enumerate(info_lines):
-                self.stdscr.addstr(start_y + i, start_x, line, curses.A_BOLD)
+            self.stdscr.addstr(31, 2, self.translator.t("caught", killed_by=killed_by))
+            if any(line.strip() for line in info_lines):
+                for i, line in enumerate(info_lines):
+                    self.stdscr.addstr(start_y + i, start_x, line, curses.A_BOLD)
         else:
-            self.stdscr.addstr(31, 10, self.translator.t("the_reason_is_unknown"))
+            self.stdscr.addstr(31, 2, self.translator.t("the_reason_is_unknown"))
 
-        self.stdscr.addstr(36, 10, self.translator.t("press_q_to_exit"), curses.A_BOLD)
+        self.stdscr.addstr(36, 2, self.translator.t("press_q_to_exit"), curses.A_BOLD)
         self.stdscr.refresh()
 
     def get_office(self):

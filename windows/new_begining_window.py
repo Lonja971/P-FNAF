@@ -1,35 +1,19 @@
-import os, json, time
+import time
 from core.window.base import Window
 from utils.terminal import clear
-from ui.elements import input_field, render_menu
+from ui.elements import input_field
+from utils.terminal import ensure_json_file
 
 class NewBeginingWindow(Window):
     def __init__(self):
         self.default_interlocutor = "chief"
-
-    def ensure_save_file(self, save_path="config/save.json", template_path="config/save.template.json"):
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-        try:
-            with open(template_path, "r", encoding="utf-8") as template_file:
-                template_data = json.load(template_file)
-
-            with open(save_path, "w", encoding="utf-8") as save_file:
-                json.dump(template_data, save_file, indent=4, ensure_ascii=False)
-
-            return template_data
-
-        except FileNotFoundError:
-            return None
-        except json.JSONDecodeError as e:
-            return None
 
     def print_dialog_phrase(self, text, who, is_new_line=False):
         print(f"{"\n" if is_new_line else ""}[{who}] {text}")
 
     def render_window(self, wm):
         clear()
-        save = self.ensure_save_file()
+        save = ensure_json_file("config/save.json", "config/save.template.json")
 
         while True:
             self.print_dialog_phrase(wm.translator.t("what_is_your_name"), wm.translator.t("manager"))

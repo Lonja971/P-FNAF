@@ -7,7 +7,7 @@ def debug_log(message):
         f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
 
 class Animatronic:
-    def __init__(self, name, default_position_index, path_graph, attack_trigger, wait_delay_range, attack_delay_range, activation_time, add_event_comment):
+    def __init__(self, name, default_position_index, path_graph, attack_trigger, wait_delay_range, attack_delay, activation_time, add_event_comment):
         self.name = name
         self.path_graph = path_graph
         self.activation_time = activation_time
@@ -16,19 +16,37 @@ class Animatronic:
 
         self.time_in_position = 0
         self.time_before_attack = 0
+        self.time_in_trigger_point = 0
         self.is_attacking = False
 
         self.wait_delay_range = wait_delay_range
         self.current_wait_delay = random.uniform(*wait_delay_range)
 
-        self.attack_delay_range = attack_delay_range
-        self.current_attack_delay = random.choice(attack_delay_range)
-
         self.attack_trigger = attack_trigger
         self.add_event_comment = add_event_comment
 
-        if attack_trigger["type"] == "laugh":
+        if attack_trigger["type"] == "position":
+            self.self_update_position = True
+            self.self_reseat = True
+            self.attack_delay = attack_delay
+            self.attack_wait_time = random.choice(attack_delay["wait_time"])
+            self.attack_need_time = random.choice(attack_delay["need_time"])
+
+        elif attack_trigger["type"] == "laugh":
+            self.self_update_position = True
+            self.self_reseat = False
+            self.attack_delays = attack_delay
+            self.current_attack_delay = random.choice(attack_delay)
             self.laugh_number = 0
+
+        elif attack_trigger["type"] == "run":
+            self.self_update_position = False
+            self.self_reseat = False
+            self.is_running = False
+            self.active_pose = 0
+            self.attack_delays = attack_delay
+            self.current_attack_delay = random.choice(attack_delay)
+            self.message_is_running = False
 
         self.translator = Translator()
     
@@ -36,8 +54,12 @@ class Animatronic:
         self.current_wait_delay = random.uniform(*self.wait_delay_range)
 
     def set_new_attack_delay(self):
-        self.current_attack_delay = random.choice(self.attack_delay_range)
-    
+        if self.attack_trigger["type"] == "position":
+            self.attack_wait_time = random.choice(self.attack_delay["wait_time"])
+            self.attack_need_time = random.choice(self.attack_delay["need_time"])
+        elif self.attack_trigger["type"] == "laugh":
+            self.current_attack_delay = random.choice(self.attack_delays)
+
     def reset_position(self, also_attacking=False):
         if also_attacking:
             self.is_attacking = False
@@ -45,35 +67,78 @@ class Animatronic:
         if self.attack_trigger["type"] == "laugh":
             self.laugh_number = 0
 
+        if self.attack_trigger["type"] == "run":
+            self.message_is_running = False
+            self.active_pose = 0
+
         self.current_position_index = self.default_position_index
         self.time_in_position = 0
+        self.time_in_trigger_point = 0
         self.time_before_attack = 0
-        self.set_new_attack_delay()
         self.set_new_wait_delay()
+        self.set_new_attack_delay()
 
-    def advance(self, office_position_index):
+    def advance(self, office_position_index, doors, doors_index):
+        #---ТІ-ЩО-ДО-ДВЕРЕЙ-ЙДУТЬ---
         if self.attack_trigger["type"] == "position" and self.attack_trigger["position"] == self.current_position_index:
-            if self.time_before_attack >= self.current_attack_delay:
-                self.current_position_index = office_position_index
-                self.is_attacking = True
-            
-            self.time_before_attack += 0.5
+            door_name = doors_index[self.attack_trigger["position"]]
+            if not doors[door_name]:
+                debug_log(f"{self.name} треба для атаки: {self.time_before_attack} >= {self.attack_need_time}")
+                if self.time_before_attack >= self.attack_need_time:
+                    self.current_position_index = office_position_index
+                    self.is_attacking = True
+                else:
+                    self.time_before_attack += 0.5
+                
+            if self.time_in_trigger_point > self.attack_wait_time and doors[door_name]:
+                self.reset_position()
+            else:
+                self.time_in_trigger_point += 0.5
+                debug_log(f"{self.name} стоїть вже {self.time_in_trigger_point}. Всього він збирається стояти: {self.attack_wait_time}")
 
+        #---ФРЕДДІ---
         elif self.attack_trigger["type"] == "laugh" and self.laugh_number == self.attack_trigger["number"]:
             debug_log(f"1 {self.name} збирається атакувати {self.laugh_number}")
             debug_log(f"2 {self.name} збирається атакувати {self.time_before_attack} >= {self.current_attack_delay}")
             if self.time_before_attack >= self.current_attack_delay:
                 self.current_position_index = office_position_index
-                debug_log(f"{self.name} АТАКУЄ")
                 self.is_attacking = True
+                self.add_event_comment(f"[{self.name}] {self.translator.t("angry_freddy_sounds")}")
             self.time_before_attack += 0.5
 
-        elif self.time_in_position >= self.current_wait_delay:
+        #---ФОКСІ---
+        elif self.attack_trigger["type"] == "run":
+            debug_log(" ")
+            debug_log(f"Фоксі діє, {self.active_pose} >= {self.attack_trigger["attack_pose"]}")
+            if self.active_pose >= self.attack_trigger["attack_pose"]:
+                debug_log(f"Фоксі готовий до атаки {self.time_before_attack} >= {self.current_attack_delay}")
+                if not self.message_is_running:
+                    self.message_is_running = True
+                    self.add_event_comment(f"[{self.name}] {self.translator.t("foxy_running")}")
+
+                if self.time_before_attack >= self.current_attack_delay:
+                    debug_log("Фоксі АТАКУЄ")
+                    self.current_position_index = office_position_index
+                    self.is_attacking = True
+                    self.add_event_comment(f"[{self.name}] {self.translator.t("angry_foxy_sounds")}")
+                else:
+                    self.time_before_attack += 0.5
+                    debug_log(f"Фоксі чекає на атаку {self.time_before_attack}")
+            elif self.time_in_position >= self.current_wait_delay:
+                self.active_pose += 1
+                self.time_in_position = 0
+                self.set_new_wait_delay()
+                debug_log(f"Фоксі в новій позі: {self.active_pose}")
+            else:
+                self.time_in_position += 0.5
+                debug_log(f"Фоксі чекає на зміну {self.time_in_position} (до {self.current_wait_delay})")
+
+        #---ЗМІНА-ПОЗИЦІЇ---
+        elif self.time_in_position >= self.current_wait_delay and self.self_update_position:
             next_positions = self.path_graph[self.current_position_index]
             if next_positions:
                 self.current_position_index = random.choice(next_positions)
                 debug_log(f"{self.name} перейшов у позицію {LOCATION[self.current_position_index]["name"]}")
-
                 if self.attack_trigger["type"] == "laugh":
                     self.laugh_number += 1
                     debug_log(f"{self.name} Сміється [{self.laugh_number}] {LOCATION[self.current_position_index]["name"]}")
@@ -81,5 +146,6 @@ class Animatronic:
 
                 self.time_in_position = 0
                 self.set_new_wait_delay()
+                self.set_new_attack_delay()
 
         self.time_in_position += 0.5

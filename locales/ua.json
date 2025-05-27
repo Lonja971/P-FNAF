@@ -17,18 +17,22 @@
     "energy": "Енергія",
     "exit": "Вихід",
     "survived_until_the_morning": "Ви дожили до ранку!",
-    "caught": "Пійманий {killed_by}...",
+    "caught": "{killed_by} спіймав вас!",
     "the_reason_is_unknown": "Причина невідома...",
     "press_q_to_exit": "Натисніть 'q', щоб вийти.",
     "bonnie_in_the_door": "Бонні в дверях...",
     "chica_in_the_door": "Чіка в дверях...",
     "no_one": "Нікого немає...",
     "ho_ho_ho": "Хо Хо Хо",
+    "angry_freddy_sounds": "Бух Бух",
+    "foxy_running": "Біжить...",
+    "angry_foxy_sounds": "Бух Бух",
 
     "NO_ONE_THERE": " НІКОГО НЕМАЄ ",
     "CLOSED": " ЗАКРИТО ",
 
     "bonnie_info": "{anim_name} любить приходити до лівих дверей.\nПросто закрийте їх перед його носом!",
     "chica_info": "{anim_name} любить приходити до правих дверей.\nПросто закрийте їх перед її носом!",
-    "freddy_info": "{anim_name} сміється тричі перед нападом.\nНе проґав!"
+    "freddy_info": "{anim_name} сміється тричі перед нападом.\nНе проґав!",
+    "foxy_info": "{anim_name} різко вбігає в офіс через ліві двері.\nСлідкуйте за його позицією щоб вчасно відреагувати!"
 }
