@@ -1,6 +1,5 @@
 import random, time
 from config.location import LOCATION
-from utils.terminal import load_config
 from core.translator import Translator
 
 def debug_log(message):
@@ -31,8 +30,7 @@ class Animatronic:
         if attack_trigger["type"] == "laugh":
             self.laugh_number = 0
 
-        config = load_config("config.json")
-        self.translator = Translator(config.get("language", "en"))
+        self.translator = Translator()
     
     def set_new_wait_delay(self):
         self.current_wait_delay = random.uniform(*self.wait_delay_range)
@@ -43,6 +41,10 @@ class Animatronic:
     def reset_position(self, also_attacking=False):
         if also_attacking:
             self.is_attacking = False
+        
+        if self.attack_trigger["type"] == "laugh":
+            self.laugh_number = 0
+
         self.current_position_index = self.default_position_index
         self.time_in_position = 0
         self.time_before_attack = 0
@@ -58,8 +60,11 @@ class Animatronic:
             self.time_before_attack += 0.5
 
         elif self.attack_trigger["type"] == "laugh" and self.laugh_number == self.attack_trigger["number"]:
+            debug_log(f"1 {self.name} збирається атакувати {self.laugh_number}")
+            debug_log(f"2 {self.name} збирається атакувати {self.time_before_attack} >= {self.current_attack_delay}")
             if self.time_before_attack >= self.current_attack_delay:
                 self.current_position_index = office_position_index
+                debug_log(f"{self.name} АТАКУЄ")
                 self.is_attacking = True
             self.time_before_attack += 0.5
 
@@ -70,8 +75,8 @@ class Animatronic:
                 debug_log(f"{self.name} перейшов у позицію {LOCATION[self.current_position_index]["name"]}")
 
                 if self.attack_trigger["type"] == "laugh":
-                    debug_log(f"{self.name} Сміється [{self.laugh_number}] {LOCATION[self.current_position_index]["name"]}")
                     self.laugh_number += 1
+                    debug_log(f"{self.name} Сміється [{self.laugh_number}] {LOCATION[self.current_position_index]["name"]}")
                     self.add_event_comment(f"[{self.name}] {self.translator.t("ho_ho_ho")}")
 
                 self.time_in_position = 0

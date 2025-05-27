@@ -26,9 +26,9 @@ class GameState(Window):
             "spend": 0.1
         }
         self.power_usage_table = {
-            "default": 0.03,
+            "default": 0.04,
             "light": 0.05,
-            "closed": 0.12,
+            "closed": 0.15,
             "camera": 0.03
         }
 
@@ -43,7 +43,7 @@ class GameState(Window):
             "position": 1
         }
 
-        self.event_comment_time = 2
+        self.event_comment_time = 1
         self.event_comment = {
             "time": 0,
             "text": None 

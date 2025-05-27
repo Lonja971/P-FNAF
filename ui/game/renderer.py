@@ -3,8 +3,8 @@ from config.animatronics import ANIMATRONICS
 from ui.sprites.logo import GAME_OVER_PICTURE_DARK, SIX_AM_PICTURE_DARK
 from ui.sprites.office import PAUSE
 from ui.sprites.office import OFFICE_CENTER
-from ui.sprites.left_door import DOOR_LEFT_LIGHT, DOOR_LEFT, DOOR_LEFT_CLOSED, DOOR_LEFT_BONNIE
-from ui.sprites.right_door import DOOR_RIGHT, DOOR_RIGHT_CLOSED, DOOR_RIGHT_LIGHT, DOOR_RIGHT_CHICA
+from ui.sprites.left_door import DOOR_LEFT, DOOR_LEFT_BONNIE, DoorLeftSprites
+from ui.sprites.right_door import DOOR_RIGHT, DOOR_RIGHT_CHICA, DoorRightSprites
 from core.translator import Translator
 from core.window.base import Window
 
@@ -19,6 +19,8 @@ class GameRenderer(Window):
         self.action_comment = None
 
         self.translator = Translator()
+        self.door_left_sprites = DoorLeftSprites(self.translator)
+        self.door_right_sprites = DoorRightSprites(self.translator)
 
     def _init_colors(self):
         curses.start_color()
@@ -111,6 +113,11 @@ class GameRenderer(Window):
         time.sleep(3)
 
     def render_game_over(self):
+        anim_info = {
+            "Freddy": "freddy_info",
+            "Chica": "chica_info",
+            "Bonnie": "bonnie_info"
+        }
         self.stdscr.clear()
         reason = self.state.game_status.get("reason")
         end_picture = GAME_OVER_PICTURE_DARK
@@ -126,14 +133,20 @@ class GameRenderer(Window):
                 self.stdscr.addstr(start_line + i, 10, line[:80])
 
         if reason == "morning":
-            self.stdscr.addstr(32, 10, {self.translator.t("survived_until_the_morning")})
+            self.stdscr.addstr(32, 10, self.translator.t("survived_until_the_morning"))
         elif reason == "killed":
             killed_by = self.state.game_status.get("killed_by", "unknown")
+            info_lines = self.translator.t(anim_info[killed_by], anim_name=killed_by).split("\n")
+            start_y = 33
+            start_x = 10
+
             self.stdscr.addstr(31, 10, self.translator.t("caught", killed_by=killed_by))
+            for i, line in enumerate(info_lines):
+                self.stdscr.addstr(start_y + i, start_x, line, curses.A_BOLD)
         else:
             self.stdscr.addstr(31, 10, self.translator.t("the_reason_is_unknown"))
 
-        self.stdscr.addstr(34, 10, self.translator.t("press_q_to_exit"), curses.A_BOLD)
+        self.stdscr.addstr(36, 10, self.translator.t("press_q_to_exit"), curses.A_BOLD)
         self.stdscr.refresh()
 
     def get_office(self):
@@ -150,10 +163,10 @@ class GameRenderer(Window):
                 door_picture = DOOR_LEFT_BONNIE
             else:
                 action_comment = self.translator.t("no_one")
-                door_picture = DOOR_LEFT_LIGHT
+                door_picture = self.door_left_sprites.get_door_left_light_sprite()
             
         if self.state.doors["left"]:
-            door_picture = DOOR_LEFT_CLOSED
+            door_picture = self.door_left_sprites.get_door_left_closed_sprite()
 
         self.add_action_comment(action_comment)
         return door_picture
@@ -169,10 +182,10 @@ class GameRenderer(Window):
                 door_picture = DOOR_RIGHT_CHICA
             else:
                 action_comment = self.translator.t("no_one")
-                door_picture = DOOR_RIGHT_LIGHT
+                door_picture = self.door_right_sprites.get_door_right_light_sprite()
             
         if self.state.doors["right"]:
-            door_picture = DOOR_RIGHT_CLOSED
+            door_picture = self.door_right_sprites.get_door_right_closed_sprite()
         
         self.add_action_comment(action_comment)
         return door_picture

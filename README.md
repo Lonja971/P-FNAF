@@ -23,3 +23,7 @@ This is a terminal-based game inspired by **Five Nights at Freddy's**, built usi
    ```bash
    git clone https://github.com/Lonja971/P-FNAF.git
    cd P-FNAF
+
+2. Run:
+   ```bash
+   python main.py
