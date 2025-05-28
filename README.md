@@ -60,8 +60,8 @@ python main.py
 
 ## ⚠️ Notes
 
-- The terminal must support at least 130/40 characters for the correct display of the interface.
-- It is recommended to run the game in full screen mode for the best experience.
+- The terminal must support at least 170/40 characters for the correct display of the interface.
+- It is recommended to run the game in half screen mode for the best experience (Related to symbolic graphics).
 
 ## Authors
 

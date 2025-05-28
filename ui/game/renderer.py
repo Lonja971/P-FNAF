@@ -15,7 +15,10 @@ class GameRenderer(Window):
         self.stdscr = stdscr
         self.state = state
         self.hours = ["12", "01", "02", "03", "04", "05", "06"]
-        self.foxy_camera = 12
+        self.foxy_camera_info = {
+            "location": 12,
+            "camera_num": 5,
+        }
 
         self._init_colors()
         self.left_padding = 2
@@ -68,11 +71,11 @@ class GameRenderer(Window):
 
     def render_bottom(self):
         action_comment = self.action_comment
-        base_line = f"[ :3 ]    {action_comment.ljust(20) if action_comment else ' ' * 20}"
+        base_line = f"|{self.left_padding*" "}[ :3 ]    {action_comment.ljust(30) if action_comment else ' ' * 30}"
 
         self.stdscr.attron(curses.color_pair(2))
         self.stdscr.addstr(33, 0, "=" * 100)
-        self.stdscr.addstr(34, self.left_padding, base_line)
+        self.stdscr.addstr(34, 0, base_line)
         self.stdscr.attroff(curses.color_pair(2))
         x_offset = self.left_padding + len(base_line)
 
@@ -288,7 +291,7 @@ class GameRenderer(Window):
         if not camera_config:
             return CAMERAS["not_found"]
         
-        if current_camera_data["position"] == self.foxy_camera:
+        if current_camera_data["position"] == self.foxy_camera_info["location"]:
             sprite_key = current_camera_data["view"][0] if current_camera_data["view"] else {"state": 0}
             return camera_config.get(sprite_key["state"], CAMERAS["not_found"])
         
