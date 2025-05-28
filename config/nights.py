@@ -28,7 +28,7 @@ NIGHTS = {
                     "hour_index": 3,
                     "min": 0
                 },
-                "wait_delay_range": [20, 30],
+                "wait_delay_range": [25, 35],
                 "attack_delay": [5, 6, 7]
             }
         }
@@ -199,18 +199,6 @@ NIGHTS = {
                 "wait_delay_range": [10, 28],
                 "attack_delay": [3, 4, 5]
             }
-        }
-    },
-    6: {
-        "animatronics": {
-            "Foxy": {
-                "activation_time": {
-                    "hour_index": 0,
-                    "min": 0
-                },
-                "wait_delay_range": [5, 10],
-                "attack_delay": [2, 3, 4]
-            },
         }
     }
 }

@@ -21,7 +21,7 @@
 ### 📥 Cloning a repository
 
 ```bash
-git clone https://github.com/Lonja971/P-FNAF.git
+git clone https://github.com/Lonja971/Terminal-FNAF.git
 cd P-FNAF
 ```
 
@@ -43,6 +43,7 @@ python main.py
 | `SPACE` | Open/close cameras               |
 | `1`–`9` | Switch to the appropriate camera |
 | `Q`     | Exit the game                    |
+| `P`     | Pause                            |
 
 ## 🧠 Gameplay
 
