@@ -45,7 +45,6 @@ class Animatronic:
 
         elif attack_trigger["type"] == "run":
             self.with_camera_time_in_position_tick = 0.2
-            self.with_camera_time_before_attack_tick = 0.2
             self.attack_power_cost = attack_trigger["power_cost"]
             self.self_update_position = False
             self.self_reseat = False
@@ -117,11 +116,9 @@ class Animatronic:
         #---ФОКСІ---
         elif self.attack_trigger["type"] == "run":
             time_in_position_tick = self.time_before_attack_tick
-            time_before_attack_tick = self.time_before_attack_tick
 
             if current_camera["is_open"] and camera_data["position"] == self.default_position_index:
                 time_in_position_tick = self.with_camera_time_in_position_tick
-                time_before_attack_tick = self.with_camera_time_before_attack_tick
 
             if self.active_pose >= self.attack_trigger["attack_pose"]:
                 debug_log(f"{self.name} готовий до атаки {self.time_before_attack} >= {self.current_attack_delay}")
@@ -135,7 +132,7 @@ class Animatronic:
                     self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("angry_foxy_sounds")}", 3)
                     self.reduce_power(self.attack_power_cost)
                 else:
-                    self.time_before_attack += time_before_attack_tick
+                    self.time_before_attack += self.time_before_attack_tick
             elif self.time_in_position >= self.current_wait_delay:
                 self.active_pose += 1
                 self.time_in_position = 0

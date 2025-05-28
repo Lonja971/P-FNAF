@@ -15,9 +15,8 @@ class GameRenderer(Window):
         self.stdscr = stdscr
         self.state = state
         self.hours = ["12", "01", "02", "03", "04", "05", "06"]
-        self.camera_numbers = {
-            1: 12
-        }
+        self.foxy_camera = 12
+
         self._init_colors()
         self.left_padding = 2
         self.current_night = current_night
@@ -69,14 +68,12 @@ class GameRenderer(Window):
 
     def render_bottom(self):
         action_comment = self.action_comment
-        base_line = f"|{" "*self.left_padding}← A  |  → D  |  Q - {self.translator.t('exit')}    {action_comment.ljust(20) if action_comment else ' ' * 20}"
-        base_line = base_line.ljust(99) + "|"
+        base_line = f"[ :3 ]    {action_comment.ljust(20) if action_comment else ' ' * 20}"
 
         self.stdscr.attron(curses.color_pair(2))
         self.stdscr.addstr(33, 0, "=" * 100)
-        self.stdscr.addstr(34, 0, base_line)
+        self.stdscr.addstr(34, self.left_padding, base_line)
         self.stdscr.attroff(curses.color_pair(2))
-
         x_offset = self.left_padding + len(base_line)
 
         for name in ["Foxy", "Freddy"]:
@@ -95,8 +92,10 @@ class GameRenderer(Window):
             x_offset += 20
 
         self.stdscr.attron(curses.color_pair(2))
+        self.stdscr.addstr(34, 99, "|")
         self.stdscr.addstr(35, 0, "=" * 100)
         self.stdscr.attroff(curses.color_pair(2))
+
         self.stdscr.refresh()
 
     def render_content(self, current_view, door_animatronics, is_flickering=False):
@@ -283,19 +282,22 @@ class GameRenderer(Window):
         if translated_position[0] == "[":
             self.set_action_comment(f"CAM {camera_number}")
         else:
-            self.set_action_comment(f"CAM {camera_number} ({translated_position})")
+            self.set_action_comment(f"CAM {camera_number} [{translated_position}]")
 
         camera_config = CAMERAS.get(position)
         if not camera_config:
             return CAMERAS["not_found"]
         
+        if current_camera_data["position"] == self.foxy_camera:
+            sprite_key = current_camera_data["view"][0] if current_camera_data["view"] else {"state": 0}
+            return camera_config.get(sprite_key["state"], CAMERAS["not_found"])
         
-        if len(current_camera_data["view"]) == 1:
-            entity = current_camera_data["view"][0]
-            sprite_key = f"{entity['name']}_{entity['state']}"
-            return camera_config["sprites"].get(sprite_key, CAMERAS["not_found"])
+        if current_camera_data["view"]:
+            sorted_names = sorted([entity["name"] for entity in current_camera_data["view"]])
+            sprite_key = "_".join(sorted_names)
+            return camera_config.get(sprite_key, CAMERAS["not_found"])
         
-        return camera_config["sprites"].get("default", CAMERAS["not_found"])
+        return camera_config.get("default", CAMERAS["not_found"])
 
     def set_action_comment(self, comment_text=None):
         self.action_comment = comment_text

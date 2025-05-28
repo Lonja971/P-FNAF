@@ -4,6 +4,12 @@
 
 **Terminal FNaF** — is a terminal game inspired by the original *Five Nights at Freddy's* series. The player has to survive the night in the security room, watching the animatronics and controlling the doors and lights to prevent them from getting in.
 
+![Camera](ui/camera.png)
+*Watch the chimeras through the cameras...*
+
+![Doors](ui/doors.png)
+*Close the door before it's too late...*
+
 ---
 
 ## 📦 Installation
@@ -41,9 +47,9 @@ python main.py
 | `K`     | Turn on/off the light            |
 | `L`     | Open/close the door              |
 | `SPACE` | Open/close cameras               |
-| `1`–`9` | Switch to the appropriate camera |
-| `Q`     | Exit the game                    |
+| `1`–`9` or `←` `→` | Switch to the appropriate camera |
 | `P`     | Pause                            |
+| `Q`     | Exit the game                    |
 
 ## 🧠 Gameplay
 
@@ -56,3 +62,10 @@ python main.py
 
 - The terminal must support at least 130/40 characters for the correct display of the interface.
 - It is recommended to run the game in full screen mode for the best experience.
+
+## Authors
+
+- [@Lonja971](https://github.com/Lonja971)
+
+P.S. I’ve poured my heart and soul into this project.
+Thank you for your attention and support!

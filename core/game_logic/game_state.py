@@ -200,7 +200,7 @@ class GameState(Window):
     def update_cameras(self, name, current_position_index, camera_state=None):
         for camera_index, camera in self.cameras.items():
             if current_position_index == camera["position"]:
-                camera["view"].append({
+                camera.setdefault("view", []).append({
                     "name": name,
                     "state": camera_state or 0
                 })
@@ -209,12 +209,12 @@ class GameState(Window):
         self.reset_camera_views()
 
         for anim in self.animatronics.values():
+            self.update_cameras(anim.name, anim.current_position_index, anim.camera_state)
             if (self.time["hour_index"] * 60 + self.time["min"]) < (anim.activation_time["hour_index"] * 60 + anim.activation_time["min"]):
                 continue
             
             anim.advance(self.office_position_index, self.doors, self.doors_index, self.current_camera, self.cameras[self.current_camera["number"]])
 
-            self.update_cameras(anim.name, anim.current_position_index, anim.camera_state)
 
             #---ПЕРЕВІРИТИ-АТАКУ---
             if anim.is_attacking:
