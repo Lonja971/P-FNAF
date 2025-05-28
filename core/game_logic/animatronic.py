@@ -16,7 +16,9 @@ class Animatronic:
         self.default_position_index = default_position_index
 
         self.time_in_position = 0
+        self.time_in_position_tick = 0.5
         self.time_before_attack = 0
+        self.time_before_attack_tick = 0.5
         self.time_in_trigger_point = 0
         self.is_attacking = False
 
@@ -42,6 +44,8 @@ class Animatronic:
             self.laugh_number = 0
 
         elif attack_trigger["type"] == "run":
+            self.with_camera_time_in_position_tick = 0.2
+            self.with_camera_time_before_attack_tick = 0.2
             self.attack_power_cost = attack_trigger["power_cost"]
             self.self_update_position = False
             self.self_reseat = False
@@ -82,7 +86,7 @@ class Animatronic:
         self.set_new_attack_delay()
         self.camera_state = 0
 
-    def advance(self, office_position_index, doors, doors_index):
+    def advance(self, office_position_index, doors, doors_index, current_camera, camera_data):
         #---ТІ-ЩО-ДО-ДВЕРЕЙ-ЙДУТЬ---
         if self.attack_trigger["type"] == "position" and self.attack_trigger["position"] == self.current_position_index:
             door_name = doors_index[self.attack_trigger["position"]]
@@ -92,12 +96,12 @@ class Animatronic:
                     self.current_position_index = office_position_index
                     self.is_attacking = True
                 else:
-                    self.time_before_attack += 0.5
+                    self.time_before_attack += self.time_before_attack_tick
                 
             if self.time_in_trigger_point > self.attack_wait_time and doors[door_name]:
                 self.reset_position()
             else:
-                self.time_in_trigger_point += 0.5
+                self.time_in_trigger_point += self.time_in_position_tick
                 debug_log(f"{self.name} стоїть вже {self.time_in_trigger_point}. Всього він збирається стояти: {self.attack_wait_time}")
 
         #---ФРЕДДІ---
@@ -112,27 +116,34 @@ class Animatronic:
 
         #---ФОКСІ---
         elif self.attack_trigger["type"] == "run":
+            time_in_position_tick = self.time_before_attack_tick
+            time_before_attack_tick = self.time_before_attack_tick
+
+            if current_camera["is_open"] and camera_data["position"] == self.default_position_index:
+                time_in_position_tick = self.with_camera_time_in_position_tick
+                time_before_attack_tick = self.with_camera_time_before_attack_tick
+
             if self.active_pose >= self.attack_trigger["attack_pose"]:
-                debug_log(f"Фоксі готовий до атаки {self.time_before_attack} >= {self.current_attack_delay}")
+                debug_log(f"{self.name} готовий до атаки {self.time_before_attack} >= {self.current_attack_delay}")
                 if not self.message_is_running:
                     self.message_is_running = True
                     #self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("foxy_running")}", 3)
 
                 if self.time_before_attack >= self.current_attack_delay:
-                    debug_log("Фоксі АТАКУЄ")
+                    debug_log(f"{self.name} АТАКУЄ")
                     self.is_attacking = True
                     self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("angry_foxy_sounds")}", 3)
                     self.reduce_power(self.attack_power_cost)
                 else:
-                    self.time_before_attack += 0.5
+                    self.time_before_attack += time_before_attack_tick
             elif self.time_in_position >= self.current_wait_delay:
                 self.active_pose += 1
                 self.time_in_position = 0
                 self.camera_state = self.active_pose
                 self.set_new_wait_delay()
-                debug_log(f"Фоксі в новій позі: {self.active_pose}")
+                debug_log(f"{self.name} в новій позі: {self.active_pose}")
             else:
-                self.time_in_position += 0.5
+                self.time_in_position += time_in_position_tick
 
         #---ЗМІНА-ПОЗИЦІЇ---
         elif self.time_in_position >= self.current_wait_delay and self.self_update_position:
@@ -149,4 +160,4 @@ class Animatronic:
                 self.set_new_wait_delay()
                 self.set_new_attack_delay()
 
-        self.time_in_position += 0.5
+        self.time_in_position += self.time_in_position_tick

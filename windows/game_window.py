@@ -68,7 +68,7 @@ class GameWindow(Window):
                         self.renderer.render_game_over()
                         while True:
                             key = self.stdscr.getch()
-                            if key == ord('q'):
+                            if key == ord('q') or key in [10, 13, curses.KEY_ENTER]:
                                 self.running = False
                                 break
                             time.sleep(0.1)

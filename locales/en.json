@@ -20,7 +20,7 @@
     "survived_until_the_morning": "You survived until morning!",
     "caught": "Caught by {killed_by}...",
     "the_reason_is_unknown": "The reason is unknown...",
-    "press_q_to_exit": "Press 'q' to exit.",
+    "press_q_to_exit": "Press 'Enter' or 'q' to exit.",
     "bonnie_in_the_door": "Bonnie is at the door...",
     "chica_in_the_door": "Chica is at the door...",
     "no_one": "No one is there...",
@@ -36,6 +36,9 @@
     "chica_info": "{anim_name} likes to come to the right door.\nJust close it in front of her!",
     "freddy_info": "{anim_name} laughs three times before the attack.\nDon't miss it!",
     "foxy_info": "{anim_name} runs into the office through the left door.\nWatch his position on the cameras to react in time!",
+
+    "NOW_CAMERA": "NOW",
+    "use_19_to_switch": "Use [1-9] or [← →] to switch",
 
     "position_12": "Pirates Cove"
 }

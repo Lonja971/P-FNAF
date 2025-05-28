@@ -1,3 +1,5 @@
+import curses
+
 class InputHandler:
     def __init__(self, state):
         self.state = state
@@ -6,9 +8,13 @@ class InputHandler:
         updated_view = current_view
         should_render = False
 
-        if self.state.current_camera["is_open"] and key not in (
-            [ord(' ')] + [ord(str(num)) for num in self.state.cameras]
-        ):
+        allowed_keys = (
+            [ord(' ')] + 
+            [ord(str(num)) for num in self.state.cameras] +
+            [curses.KEY_LEFT, curses.KEY_RIGHT]
+        )
+
+        if self.state.current_camera["is_open"] and key not in allowed_keys:
             return updated_view, should_render
 
         if key == ord('a'):
@@ -17,24 +23,28 @@ class InputHandler:
                 "center" if current_view == "right" else current_view
             )
             should_render = True
+
         elif key == ord('d'):
             updated_view = (
                 "right" if current_view == "center" else
                 "center" if current_view == "left" else current_view
             )
             should_render = True
+
         elif key == ord('l'):
             if current_view == "left":
                 self.state.door_handle("left")
             elif current_view == "right":
                 self.state.door_handle("right")
             should_render = True
+
         elif key == ord('k'):
             if current_view == "left":
                 self.state.light_handle("left")
             elif current_view == "right":
                 self.state.light_handle("right")
             should_render = True
+
         elif key == ord(' '):
             if current_view == "center":
                 self.state.current_camera["is_open"] = not self.state.current_camera["is_open"]
@@ -45,5 +55,23 @@ class InputHandler:
             if camera_number in self.state.cameras:
                 self.state.current_camera["number"] = camera_number
                 should_render = True
+                
+        elif key == curses.KEY_LEFT:
+            available = sorted(self.state.cameras.keys())
+            current = self.state.current_camera["number"]
+            idx = available.index(current)
+            self.state.current_camera["number"] = (
+                available[idx - 1] if idx > 0 else available[-1]
+            )
+            should_render = True
+
+        elif key == curses.KEY_RIGHT:
+            available = sorted(self.state.cameras.keys())
+            current = self.state.current_camera["number"]
+            idx = available.index(current)
+            self.state.current_camera["number"] = (
+                available[idx + 1] if idx < len(available) - 1 else available[0]
+            )
+            should_render = True
 
         return updated_view, should_render

@@ -1,11 +1,11 @@
-import curses, time
+import curses, time, re
 from config.animatronics import ANIMATRONICS
 from ui.sprites.logo import GAME_OVER_PICTURE_DARK, SIX_AM_PICTURE_DARK
 from ui.sprites.office import PAUSE
 from ui.sprites.office import OFFICE_CENTER
 from ui.sprites.left_door import DOOR_LEFT, DOOR_LEFT_BONNIE, DoorLeftSprites
 from ui.sprites.right_door import DOOR_RIGHT, DOOR_RIGHT_CHICA, DoorRightSprites
-from ui.sprites.cameras import CAMERAS, CAMERAS_MAP
+from ui.sprites.cameras import CAMERAS, CamerasMapSprite
 from core.translator import Translator
 from core.window.base import Window
 from utils.terminal import debug_log
@@ -24,6 +24,7 @@ class GameRenderer(Window):
         self.action_comment = None
 
         self.translator = Translator()
+        self.cameras_map_sprite = CamerasMapSprite(self.translator)
         self.door_left_sprites = DoorLeftSprites(self.translator)
         self.door_right_sprites = DoorRightSprites(self.translator)
 
@@ -55,21 +56,25 @@ class GameRenderer(Window):
             power = int(self.state.power)
             power_usage = self.state.power_usage
 
+        line = f"|{" "*self.left_padding}{self.translator.t('night')}: {self.current_night} | {hours}:{minutes}   {self.translator.t('energy')}: {power}% :{'[]' * power_usage['items']}"
+        line = line.ljust(99) + "|"
+
         self.stdscr.attron(curses.color_pair(1))
         self.stdscr.addstr(0, 0, "=" * 100)
         self.stdscr.addstr(1, 0, " " * 100)
-        self.stdscr.addstr(1, self.left_padding, f"{self.translator.t("night")}: {self.current_night} | {hours}:{minutes}   {self.translator.t("energy")}: {power}% :{'[]' * power_usage["items"]}")
+        self.stdscr.addstr(1, 0, line)
         self.stdscr.addstr(2, 0, "=" * 100)
         self.stdscr.attroff(curses.color_pair(1))
         self.stdscr.refresh()
 
     def render_bottom(self):
         action_comment = self.action_comment
-        base_line = f"← A  |  → D  |  Q - {self.translator.t('exit')}    {action_comment.ljust(20) if action_comment else ' ' * 20}"
+        base_line = f"|{" "*self.left_padding}← A  |  → D  |  Q - {self.translator.t('exit')}    {action_comment.ljust(20) if action_comment else ' ' * 20}"
+        base_line = base_line.ljust(99) + "|"
 
         self.stdscr.attron(curses.color_pair(2))
         self.stdscr.addstr(33, 0, "=" * 100)
-        self.stdscr.addstr(34, self.left_padding, base_line)
+        self.stdscr.addstr(34, 0, base_line)
         self.stdscr.attroff(curses.color_pair(2))
 
         x_offset = self.left_padding + len(base_line)
@@ -120,13 +125,44 @@ class GameRenderer(Window):
 
         self.stdscr.attroff(curses.color_pair(color_pair))
         self.stdscr.refresh()
-
+    
     def render_camers_map(self):
         start_y = 3
         start_x = 102
+        current_camera = self.state.current_camera["number"]
+        sprite_lines = self.cameras_map_sprite.get_cameras_map_sprite(current_camera)
 
-        for i, line in enumerate(CAMERAS_MAP):
-            self.stdscr.addstr(start_y + i, start_x, line)
+        camera_pattern = re.compile(r"\[\d+\]")
+        cam_tag_pattern = re.compile(r"\[CAM \d+\]")
+
+        for i, line in enumerate(sprite_lines):
+            y = start_y + i
+            x = start_x
+            idx = 0
+
+            # --- Додаємо | на позиції 45 ---
+            if len(line) < 45:
+                line = line.ljust(44) + "|"
+
+            # --- Обробляємо патерни ---
+            for match in camera_pattern.finditer(line):
+                start, end = match.span()
+                self.stdscr.addstr(y, x + idx, line[idx:start])
+                camera_str = match.group()
+                camera_num = int(camera_str.strip("[]"))
+                color = curses.color_pair(2) if camera_num == current_camera else curses.color_pair(1)
+                self.stdscr.addstr(y, x + start, camera_str, color)
+                idx = end
+
+            # Обробляємо [CAM n] (нижній рядок)
+            for match in cam_tag_pattern.finditer(line):
+                start, end = match.span()
+                self.stdscr.addstr(y, x + idx, line[idx:start])
+                self.stdscr.addstr(y, x + start, match.group(), curses.color_pair(2))
+                idx = end
+
+            # Друкуємо залишок рядка
+            self.stdscr.addstr(y, x + idx, line[idx:])
 
         self.stdscr.refresh()
 
@@ -169,7 +205,7 @@ class GameRenderer(Window):
 
         for i, line in enumerate(picture_lines):
             if i + start_line < 30:
-                self.stdscr.addstr(start_line + i, 2, line[:80])
+                self.stdscr.addstr(start_line + i, 2, line[:100])
 
         if reason == "morning":
             self.stdscr.addstr(32, 2, self.translator.t("survived_until_the_morning"))

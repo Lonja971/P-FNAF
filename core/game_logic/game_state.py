@@ -27,9 +27,9 @@ class GameState(Window):
         }
         self.power_usage_table = {
             "default": 0.03,
-            "light": 0.05,
+            "light": 0.03,
             "closed": 0.10,
-            "camera": 0.05
+            "camera": 0.025
         }
 
         self.is_pause = False
@@ -40,16 +40,35 @@ class GameState(Window):
         }
         self.current_camera = {
             "is_open": False,
-            "number": 2
+            "number": 1
         }
         self.cameras = {
-            2: {
-                "position": 12,
-                "view": [],
-            },
             1: {
                 "position": 1,
-                "view": [],
+            },
+            2: {
+                "position": 2,
+            },
+            3: {
+                "position": 3,
+            },
+            4: {
+                "position": 4,
+            },
+            5: {
+                "position": 12,
+            },
+            6: {
+                "position": 6,
+            },
+            7: {
+                "position": 9,
+            },
+            8: {
+                "position": 5,
+            },
+            9: {
+                "position": 7,
             },
         }
 
@@ -71,7 +90,7 @@ class GameState(Window):
             night_data = self.night_config["animatronics"][name]
             self.animatronics[name] = Animatronic(
                 name=name,
-                default_position_index=base_data["default_possition_index"],
+                default_position_index=base_data["default_position_index"],
                 path_graph=base_data["path_graph"],
                 attack_trigger=base_data["attack_trigger"],
                 wait_delay_range=night_data["wait_delay_range"],
@@ -193,7 +212,7 @@ class GameState(Window):
             if (self.time["hour_index"] * 60 + self.time["min"]) < (anim.activation_time["hour_index"] * 60 + anim.activation_time["min"]):
                 continue
             
-            anim.advance(self.office_position_index, self.doors, self.doors_index)
+            anim.advance(self.office_position_index, self.doors, self.doors_index, self.current_camera, self.cameras[self.current_camera["number"]])
 
             self.update_cameras(anim.name, anim.current_position_index, anim.camera_state)
 

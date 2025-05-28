@@ -2,7 +2,7 @@ from ui.sprites.screamers import BONNIE_SCREAMER_DARK, CHICA_SCREAMER_DARK, FREA
 
 ANIMATRONICS = {
     "Bonnie": {
-        "default_possition_index": 1,
+        "default_position_index": 1,
         "path_graph": {
             1: [2],
             2: [3, 6],
@@ -19,7 +19,7 @@ ANIMATRONICS = {
         "screamer_sprite": BONNIE_SCREAMER_DARK
     },
     "Chica": {
-        "default_possition_index": 1,
+        "default_position_index": 1,
         "path_graph": {
             1: [2],
             2: [9, 5],
@@ -35,7 +35,7 @@ ANIMATRONICS = {
         "screamer_sprite": CHICA_SCREAMER_DARK
     },
     "Freddy": {
-        "default_possition_index": 1,
+        "default_position_index": 1,
         "path_graph": {
             1: [2],
             2: [4],
@@ -51,7 +51,7 @@ ANIMATRONICS = {
         "screamer_sprite": FREADDY_SCREAMER_DARK
     },
     "Foxy": {
-        "default_possition_index": 12,
+        "default_position_index": 12,
         "path_graph": {
             12: [11],
         },
