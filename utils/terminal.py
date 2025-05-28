@@ -1,7 +1,11 @@
-import os, json
+import os, json, time
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+def debug_log(message):
+    with open("debug_log.txt", "a", encoding="utf-8") as f:
+        f.write(f"[{time.strftime('%H:%M:%S')}] {message}\n")
 
 def load_config(path):
     with open(path, "r", encoding="utf-8") as f:

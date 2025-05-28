@@ -9,6 +9,7 @@ def debug_log(message):
 class Animatronic:
     def __init__(self, name, default_position_index, path_graph, attack_trigger, wait_delay_range, attack_delay, activation_time, add_event_comment, reduce_power):
         self.name = name
+        self.camera_state = 0
         self.path_graph = path_graph
         self.activation_time = activation_time
         self.current_position_index = default_position_index
@@ -79,6 +80,7 @@ class Animatronic:
         self.time_before_attack = 0
         self.set_new_wait_delay()
         self.set_new_attack_delay()
+        self.camera_state = 0
 
     def advance(self, office_position_index, doors, doors_index):
         #---ТІ-ЩО-ДО-ДВЕРЕЙ-ЙДУТЬ---
@@ -114,11 +116,10 @@ class Animatronic:
                 debug_log(f"Фоксі готовий до атаки {self.time_before_attack} >= {self.current_attack_delay}")
                 if not self.message_is_running:
                     self.message_is_running = True
-                    self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("foxy_running")}", 3)
+                    #self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("foxy_running")}", 3)
 
                 if self.time_before_attack >= self.current_attack_delay:
                     debug_log("Фоксі АТАКУЄ")
-                    self.current_position_index = office_position_index
                     self.is_attacking = True
                     self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("angry_foxy_sounds")}", 3)
                     self.reduce_power(self.attack_power_cost)
@@ -127,6 +128,7 @@ class Animatronic:
             elif self.time_in_position >= self.current_wait_delay:
                 self.active_pose += 1
                 self.time_in_position = 0
+                self.camera_state = self.active_pose
                 self.set_new_wait_delay()
                 debug_log(f"Фоксі в новій позі: {self.active_pose}")
             else:

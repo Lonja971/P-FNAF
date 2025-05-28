@@ -5,14 +5,19 @@ from ui.sprites.office import PAUSE
 from ui.sprites.office import OFFICE_CENTER
 from ui.sprites.left_door import DOOR_LEFT, DOOR_LEFT_BONNIE, DoorLeftSprites
 from ui.sprites.right_door import DOOR_RIGHT, DOOR_RIGHT_CHICA, DoorRightSprites
+from ui.sprites.cameras import CAMERAS, CAMERAS_MAP
 from core.translator import Translator
 from core.window.base import Window
+from utils.terminal import debug_log
 
 class GameRenderer(Window):
     def __init__(self, stdscr, state, current_night):
         self.stdscr = stdscr
         self.state = state
         self.hours = ["12", "01", "02", "03", "04", "05", "06"]
+        self.camera_numbers = {
+            1: 12
+        }
         self._init_colors()
         self.left_padding = 2
         self.current_night = current_night
@@ -29,9 +34,9 @@ class GameRenderer(Window):
         GRAY = 244
         curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(3, 160, -1)
+        curses.init_pair(3, curses.COLOR_RED, -1)
         curses.init_pair(4, 130, -1)
-        curses.init_pair(10, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(10, 250, curses.COLOR_BLACK)
         curses.init_pair(11, GRAY, -1)
 
     def render_all(self, current_view, door_animatronics, is_flickering):
@@ -92,6 +97,7 @@ class GameRenderer(Window):
     def render_content(self, current_view, door_animatronics, is_flickering=False):
         color_pair = 11 if is_flickering else 10
         self.stdscr.attron(curses.color_pair(color_pair))
+        self.set_action_comment(None)
 
         for i in range(3, 30):
             self.stdscr.move(i, 0)
@@ -100,6 +106,8 @@ class GameRenderer(Window):
         lines = []
         if self.state.is_pause == True:
             lines = PAUSE
+        elif self.state.current_camera["is_open"]:
+            lines = self.get_camera_view()
         elif current_view == "center":
             lines = self.get_office()
         elif current_view == "left":
@@ -111,6 +119,15 @@ class GameRenderer(Window):
             self.stdscr.addstr(3 + idx, 0, line[:101])
 
         self.stdscr.attroff(curses.color_pair(color_pair))
+        self.stdscr.refresh()
+
+    def render_camers_map(self):
+        start_y = 3
+        start_x = 102
+
+        for i, line in enumerate(CAMERAS_MAP):
+            self.stdscr.addstr(start_y + i, start_x, line)
+
         self.stdscr.refresh()
 
     def render_screamer(self, killer_name):
@@ -191,7 +208,7 @@ class GameRenderer(Window):
         if self.state.doors["left"]:
             door_picture = self.door_left_sprites.get_door_left_closed_sprite()
 
-        self.add_action_comment(action_comment)
+        self.set_action_comment(action_comment)
         return door_picture
 
     def get_right_door(self, door_animatronics):
@@ -210,8 +227,39 @@ class GameRenderer(Window):
         if self.state.doors["right"]:
             door_picture = self.door_right_sprites.get_door_right_closed_sprite()
         
-        self.add_action_comment(action_comment)
+        self.set_action_comment(action_comment)
         return door_picture
     
-    def add_action_comment(self, comment_text=None):
+    def get_camera_view(self):
+        current_camera = self.state.current_camera
+        camera_number = current_camera["number"]
+
+        self.render_camers_map()
+
+        current_camera_data = self.state.cameras.get(camera_number)
+        if not current_camera_data:
+            return CAMERAS["not_found"]
+        
+        position = current_camera_data["position"]
+
+        position_key = f"position_{position}"
+        translated_position = self.translator.t(position_key)
+        if translated_position[0] == "[":
+            self.set_action_comment(f"CAM {camera_number}")
+        else:
+            self.set_action_comment(f"CAM {camera_number} ({translated_position})")
+
+        camera_config = CAMERAS.get(position)
+        if not camera_config:
+            return CAMERAS["not_found"]
+        
+        
+        if len(current_camera_data["view"]) == 1:
+            entity = current_camera_data["view"][0]
+            sprite_key = f"{entity['name']}_{entity['state']}"
+            return camera_config["sprites"].get(sprite_key, CAMERAS["not_found"])
+        
+        return camera_config["sprites"].get("default", CAMERAS["not_found"])
+
+    def set_action_comment(self, comment_text=None):
         self.action_comment = comment_text

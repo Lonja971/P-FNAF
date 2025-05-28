@@ -38,9 +38,19 @@ class GameState(Window):
             "reason": None,
             "killed_by": None
         }
-        self.camera = {
+        self.current_camera = {
             "is_open": False,
-            "position": 1
+            "number": 2
+        }
+        self.cameras = {
+            2: {
+                "position": 12,
+                "view": [],
+            },
+            1: {
+                "position": 1,
+                "view": [],
+            },
         }
 
         self.event_comment_time = 1.5
@@ -110,7 +120,7 @@ class GameState(Window):
         power_usage = self.power_usage_table["default"]
         items = 1
 
-        if self.camera["is_open"]:
+        if self.current_camera["is_open"]:
             power_usage += self.power_usage_table["camera"]
             items +=1
         if self.doors["left"]:
@@ -164,12 +174,28 @@ class GameState(Window):
         self.doors = {"left": False, "right": False}
         self.light = {"left": False, "right": False}
 
+    def reset_camera_views(self):
+        for camera in self.cameras.values():
+            camera["view"] = []
+
+    def update_cameras(self, name, current_position_index, camera_state=None):
+        for camera_index, camera in self.cameras.items():
+            if current_position_index == camera["position"]:
+                camera["view"].append({
+                    "name": name,
+                    "state": camera_state or 0
+                })
+
     def update_animatronics(self):
+        self.reset_camera_views()
+
         for anim in self.animatronics.values():
             if (self.time["hour_index"] * 60 + self.time["min"]) < (anim.activation_time["hour_index"] * 60 + anim.activation_time["min"]):
                 continue
             
             anim.advance(self.office_position_index, self.doors, self.doors_index)
+
+            self.update_cameras(anim.name, anim.current_position_index, anim.camera_state)
 
             #---ПЕРЕВІРИТИ-АТАКУ---
             if anim.is_attacking:
