@@ -1240,9 +1240,8 @@ CAMERAS = {
 class CamerasMapSprite():
     def __init__(self, translator):
         self.translator = translator
-    def get_cameras_map_sprite(self, current_camera_number):
-        camera_text = self.translator.t("NOW_CAMERA")
-        camera_name = self.translator.t(f"position_{current_camera_number}")
+    def get_cameras_map_sprite(self, current_camera_number, current_camera_position):
+        camera_name = self.translator.t(f"position_{current_camera_position}")
         use_to_switch = self.translator.t("use_19_to_switch")
 
         return [

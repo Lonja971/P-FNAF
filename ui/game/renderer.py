@@ -138,7 +138,8 @@ class GameRenderer(Window):
         start_y = 3
         start_x = 102
         current_camera = self.state.current_camera["number"]
-        sprite_lines = self.cameras_map_sprite.get_cameras_map_sprite(current_camera)
+        current_camera_position = self.state.cameras[current_camera]["position"]
+        sprite_lines = self.cameras_map_sprite.get_cameras_map_sprite(current_camera, current_camera_position)
 
         camera_pattern = re.compile(r"\[\d+\]")
         cam_tag_pattern = re.compile(r"\[CAM \d+\]")
