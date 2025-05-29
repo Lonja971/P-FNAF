@@ -251,4 +251,46 @@ NIGHTS = {
             }
         }
     },
+    7: {
+        "animatronics":{
+            "Bonnie": {
+                "activation_time": {
+                    "hour_index": 6,
+                    "min": 0
+                },
+                "wait_delay_range": [2, 8],
+                "attack_delay": {
+                    "wait_time": [4, 5, 6, 7, 8, 9, 10],
+                    "need_time": [2, 3, 4]
+                }
+            },
+            "Chica": {
+                "activation_time": {
+                    "hour_index": 6,
+                    "min": 0
+                },
+                "wait_delay_range": [2, 8],
+                "attack_delay": {
+                    "wait_time": [4, 5, 6, 7, 8, 9, 10],
+                    "need_time": [2, 3, 4]
+                }
+            },
+            "Foxy": {
+                "activation_time": {
+                    "hour_index": 0,
+                    "min": 0
+                },
+                "wait_delay_range": [2, 3],
+                "attack_delay": [2, 3, 4]
+            },
+            "Freddy": {
+                "activation_time": {
+                    "hour_index": 0,
+                    "min": 0
+                },
+                "wait_delay_range": [2, 3],
+                "attack_delay": [3, 4, 5]
+            }
+        }
+    },
 }

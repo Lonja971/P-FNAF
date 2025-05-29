@@ -14,6 +14,7 @@ class Animatronic:
         self.activation_time = activation_time
         self.current_position_index = default_position_index
         self.default_position_index = default_position_index
+        self.last_position_index = None
 
         self.time_in_position = 0
         self.time_in_position_tick = 0.5
@@ -145,7 +146,11 @@ class Animatronic:
         #---ЗМІНА-ПОЗИЦІЇ---
         elif self.time_in_position >= self.current_wait_delay and self.self_update_position:
             next_positions = self.path_graph[self.current_position_index]
+            if self.last_position_index in next_positions:
+                next_positions.remove(self.last_position_index)
+
             if next_positions:
+                old_position_index = self.current_position_index
                 self.current_position_index = random.choice(next_positions)
                 debug_log(f"{self.name} перейшов у позицію {LOCATION[self.current_position_index]["name"]}")
                 if self.attack_trigger["type"] == "laugh":
@@ -154,6 +159,7 @@ class Animatronic:
                     self.add_event_comment(self.name, f"[{self.name}] {self.translator.t("ho_ho_ho")}", 4)
 
                 self.time_in_position = 0
+                self.last_position_index = old_position_index
                 self.set_new_wait_delay()
                 self.set_new_attack_delay()
 

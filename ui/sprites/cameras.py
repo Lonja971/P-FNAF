@@ -1242,16 +1242,17 @@ class CamerasMapSprite():
         self.translator = translator
     def get_cameras_map_sprite(self, current_camera_number):
         camera_text = self.translator.t("NOW_CAMERA")
+        camera_name = self.translator.t(f"position_{current_camera_number}")
         use_to_switch = self.translator.t("use_19_to_switch")
 
         return [
 "=============================================",
 "|                                           |",
 "|                                           |",
-"|              [1]                          |",
-"|         _____|‾‾‾‾‾‾‾‾‾‾|_____            |",
+"|               [1]______                   |",
+"|         ______|        |______            |",
 "|   _____|                      |  __       |",
-"|  |                            |_|  [4]    |",
+"|  |                            |_| [4]     |",
 "| [3]    |     [2]               _   |___   |",
 "|  |_____|                      | |      |  |",
 "|       _|                      | |  |‾‾‾   |",
@@ -1265,7 +1266,7 @@ class CamerasMapSprite():
 "|           [10]‾‾    ‾‾[11]                |",
 "|                                           |",
 "=============================================",
-f"| {camera_text}: [CAM {current_camera_number}]",
+f"| [CAM_{current_camera_number}] {camera_name}",
 f"| {use_to_switch}",
 "=============================================",
 ]

@@ -7,7 +7,8 @@ from ui.game.loop import GameLoop
 from ui.game.input_handler import InputHandler
 
 class GameWindow(Window):
-    def __init__(self, current_night=1):
+    def __init__(self, player_name, current_night=1):
+        self.player_name = player_name
         self.state = GameState(current_night)
         self.current_night = current_night
         self.door_animatronics = {"left": None, "right": None}
@@ -29,7 +30,7 @@ class GameWindow(Window):
 
     def _main(self, stdscr):
         self.stdscr = stdscr
-        self.renderer = GameRenderer(self.stdscr, self.state, self.current_night)
+        self.renderer = GameRenderer(self.stdscr, self.player_name, self.state, self.current_night)
 
         curses.curs_set(0)
         self.stdscr.nodelay(True)

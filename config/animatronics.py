@@ -22,7 +22,8 @@ ANIMATRONICS = {
         "default_position_index": 1,
         "path_graph": {
             1: [2],
-            2: [9, 5],
+            2: [4, 9, 5],
+            4: [2, 9],
             5: [2, 9],
             9: [10, 14],
             14: [10],

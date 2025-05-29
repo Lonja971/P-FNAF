@@ -23,12 +23,12 @@ class MainWindow(Window):
         else:
             return self.next_avaible_night(next_night_index - 1)
 
-    def start_new_game(self, wm):
+    def start_new_game(self, wm, player_name):
         if self.confirming_new_game == True:
             current_night = 1
             self.update_json_value("config/save.json", "complated_night", 0)
 
-            wm.switch_to("game", current_night)
+            wm.switch_to("game", player_name, current_night)
 
     def render_window(self, wm):
         save = self.load_save_data("config/save.json")
@@ -48,7 +48,7 @@ class MainWindow(Window):
 
             self.menu_actions = render_menu([
                 (wm.translator.t("new_game"), None, lambda wm: self.confirm_new_game(wm)),
-                (f"{wm.translator.t("night")} {next_avaible_night}", None, lambda wm: wm.switch_to("game", next_avaible_night)),
+                (f"{wm.translator.t("night")} {next_avaible_night}", None, lambda wm: wm.switch_to("game", save["player"]["name"], next_avaible_night)),
                 (wm.translator.t("change_language"), None, lambda wm: wm.switch_to("change_lanquage")),
                 (wm.translator.t("logout"), "q", lambda wm: wm.exit()),
             ], self.left_padding)
@@ -60,7 +60,7 @@ class MainWindow(Window):
 
             if self.confirming_new_game:
                 if choice.lower() == self.confirm_key:
-                    self.start_new_game(wm)
+                    self.start_new_game(wm, save["player"]["name"])
                     break
                 else:
                     self.confirming_new_game = False

@@ -8,10 +8,11 @@ from ui.sprites.right_door import DOOR_RIGHT, DOOR_RIGHT_CHICA, DoorRightSprites
 from ui.sprites.cameras import CAMERAS, CamerasMapSprite
 from core.translator import Translator
 from core.window.base import Window
-from utils.terminal import debug_log
+from utils.terminal import debug_log, shorten
 
 class GameRenderer(Window):
-    def __init__(self, stdscr, state, current_night):
+    def __init__(self, stdscr, player_name, state, current_night):
+        self.player_name = player_name
         self.stdscr = stdscr
         self.state = state
         self.hours = ["12", "01", "02", "03", "04", "05", "06"]
@@ -70,25 +71,30 @@ class GameRenderer(Window):
         self.stdscr.refresh()
 
     def render_bottom(self):
-        action_comment = self.action_comment
-        base_line = f"|{self.left_padding*" "}[ :3 ]    {action_comment.ljust(30) if action_comment else ' ' * 30}"
+        action_comment = self.action_comment or ""
+        action_comment = action_comment[:28].ljust(28)
+        player_name = shorten(self.player_name, 12)
 
+        name_status = f"<{player_name}> [{self.translator.t('ALIVE')}]".ljust(25)
+        base_line = f"|{self.left_padding * ' '}{name_status} {action_comment}"
+
+        # Початок рендеру
         self.stdscr.attron(curses.color_pair(2))
         self.stdscr.addstr(33, 0, "=" * 100)
+        self.stdscr.addstr(34, 0, " " * 100)
         self.stdscr.addstr(34, 0, base_line)
         self.stdscr.attroff(curses.color_pair(2))
-        x_offset = self.left_padding + len(base_line)
+
+        x_offset = len(base_line)
 
         for name in ["Foxy", "Freddy"]:
             comment = self.state.event_comments.get(name, {"text": "", "color": None})
-            text = comment.get("text") or ""
+            text = comment.get("text", "")[:35].ljust(35)
             color = comment.get("color")
-
-            padded_text = text.ljust(20)
 
             if color is not None:
                 self.stdscr.attron(curses.color_pair(color))
-            self.stdscr.addstr(34, x_offset, padded_text)
+            self.stdscr.addstr(34, x_offset, text)
             if color is not None:
                 self.stdscr.attroff(curses.color_pair(color))
 
@@ -283,9 +289,10 @@ class GameRenderer(Window):
         position_key = f"position_{position}"
         translated_position = self.translator.t(position_key)
         if translated_position[0] == "[":
-            self.set_action_comment(f"CAM {camera_number}")
+            self.set_action_comment(f"[CAM_{camera_number}]")
         else:
-            self.set_action_comment(f"CAM {camera_number} [{translated_position}]")
+            translated_position = shorten(translated_position, 15)
+            self.set_action_comment(f"[CAM_{camera_number}] {translated_position}")
 
         camera_config = CAMERAS.get(position)
         if not camera_config:

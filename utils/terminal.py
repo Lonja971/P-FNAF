@@ -40,3 +40,6 @@ def ensure_json_file(save_path="config/save.json", template_path="config/save.te
     except json.JSONDecodeError as e:
         print(f"[ERROR] Failed to parse JSON: {e}")
         return None
+    
+def shorten(text, max_length=10):
+    return text if len(text) <= max_length else text[:max_length - 1] + '..'
