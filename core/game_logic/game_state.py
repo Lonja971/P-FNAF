@@ -70,6 +70,12 @@ class GameState(Window):
             9: {
                 "position": 7,
             },
+            10: {
+                "position": 13
+            },
+            11: {
+                "position": 14
+            }
         }
 
         self.event_comment_time = 1.5

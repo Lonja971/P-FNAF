@@ -10,45 +10,49 @@ class InputHandler:
 
         allowed_keys = (
             [ord(' ')] + 
-            [ord(str(num)) for num in self.state.cameras] +
-            [curses.KEY_LEFT, curses.KEY_RIGHT, ord('a'), ord('d')]
+            [ord(str(num)) for num in self.state.cameras if num <= 9] +
+            [curses.KEY_LEFT, curses.KEY_RIGHT, ord('k'), ord('l')]
         )
 
         if self.state.current_camera["is_open"] and key not in allowed_keys:
             return updated_view, should_render
 
         if key == ord('a'):
-            if self.state.current_camera["is_open"]:
-                self.change_camera_view_to_left()
-            else:
-                updated_view = (
-                    "left" if current_view == "center" else
-                    "center" if current_view == "right" else current_view
-                )
+            updated_view = (
+                "left" if current_view == "center" else
+                "center" if current_view == "right" else current_view
+            )
             should_render = True
 
         elif key == ord('d'):
-            if self.state.current_camera["is_open"]:
-                self.change_camera_view_to_right()
-            else:
-                updated_view = (
-                    "right" if current_view == "center" else
-                    "center" if current_view == "left" else current_view
-                )
-            should_render = True
-
-        elif key == ord('l'):
-            if current_view == "left":
-                self.state.door_handle("left")
-            elif current_view == "right":
-                self.state.door_handle("right")
+            updated_view = (
+                "right" if current_view == "center" else
+                "center" if current_view == "left" else current_view
+            )
             should_render = True
 
         elif key == ord('k'):
-            if current_view == "left":
-                self.state.light_handle("left")
-            elif current_view == "right":
-                self.state.light_handle("right")
+            if self.state.current_camera["is_open"]:
+                self.change_camera_view_to_left()
+
+            else:
+                if current_view == "left":
+                    self.state.light_handle("left")
+                elif current_view == "right":
+                    self.state.light_handle("right")
+
+            should_render = True
+
+        elif key == ord('l'):
+            if self.state.current_camera["is_open"]:
+                self.change_camera_view_to_right()
+
+            else:
+                if current_view == "left":
+                    self.state.door_handle("left")
+                elif current_view == "right":
+                    self.state.door_handle("right")
+
             should_render = True
 
         elif key == ord(' '):

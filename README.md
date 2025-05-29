@@ -47,7 +47,7 @@ python main.py
 | `K`     | Turn on/off the light            |
 | `L`     | Open/close the door              |
 | `SPACE` | Open/close cameras               |
-| `1`–`9` or `←` `→` | Switch to the appropriate camera |
+| `1`–`9` or `←` `→` or `k` `l` | Switch to the appropriate camera |
 | `P`     | Pause                            |
 | `Q x2`     | Exit the game                    |
 
