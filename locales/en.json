@@ -1,6 +1,8 @@
 {
     "choose_lang": "Select the interface language",
 
+    "are_you_sure_new_game": "Are you sure you want to start a new game?",
+    "confirm_new_game": "Press [{confirm_key}] to confirm or other to cancel.",
     "have_a_good_shift": "Have a good shift, {name}",
     "new_game": "New Game",
     "continue": "Continue",

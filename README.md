@@ -49,7 +49,7 @@ python main.py
 | `SPACE` | Open/close cameras               |
 | `1`–`9` or `←` `→` | Switch to the appropriate camera |
 | `P`     | Pause                            |
-| `Q`     | Exit the game                    |
+| `Q x2`     | Exit the game                    |
 
 ## 🧠 Gameplay
 

@@ -18,6 +18,7 @@ class GameWindow(Window):
         self.flicker_duration = 0.2
         self.is_flickering = False
         self.flicker_timer = 0
+        self.confirming_exit = False
 
         self.input_handler = InputHandler(self.state)
 
@@ -52,7 +53,10 @@ class GameWindow(Window):
                         self.renderer.render_bottom()
 
                 if key == ord('q'):
-                    self.running = False
+                    if self.confirming_exit == False:
+                        self.confirming_exit = True
+                    else:
+                        self.running = False
                 elif key == ord('p'):
                     self.state.is_pause = not self.state.is_pause
 
@@ -102,9 +106,3 @@ class GameWindow(Window):
             if self.next_flicker_in <= 0:
                 self.is_flickering = True
                 self.renderer.render_content(self.current_view, self.door_animatronics, self.is_flickering)
-
-    def add_event_comment(self, comment_text):
-        self.event_comment = {
-            "time": 0,
-            "text": comment_text
-        }
