@@ -195,7 +195,7 @@ class GameState(Window):
         }
 
     def disable_all(self):
-        self.camera['is_open'] = False
+        self.current_camera['is_open'] = False
         self.doors = {"left": False, "right": False}
         self.light = {"left": False, "right": False}
 
