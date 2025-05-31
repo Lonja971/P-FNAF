@@ -27,14 +27,13 @@
 ### 📥 Cloning a repository
 
 ```bash
-git clone https://github.com/Lonja971/Terminal-FNAF.git
-cd P-FNAF
+git clone https://github.com/Lonja971/Terminal-FNaF.git
+cd Terminal-FNaF
 ```
 
 ### ▶️ Launching the game
 
 ```bach
-cd Terminal-FNAF
 python main.py
 ```
 

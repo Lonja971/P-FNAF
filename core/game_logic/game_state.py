@@ -29,7 +29,7 @@ class GameState(Window):
             "default": 0.03,
             "light": 0.03,
             "closed": 0.10,
-            "camera": 0.025
+            "camera": 0.023
         }
 
         self.is_pause = False

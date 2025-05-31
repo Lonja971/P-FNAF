@@ -15,7 +15,7 @@ def divider():
 def menu_option(key: str, label: str):
     print(f"{key}. {label}")
 
-def render_menu(menu_data: list[tuple[str, str | None, Callable]], left_padding="  ") -> dict[str, Callable]:
+def render_menu(menu_data: list[tuple[str, Callable]], left_padding="  ") -> dict[str, Callable]:
     actions = {}
     auto_index = 1
 

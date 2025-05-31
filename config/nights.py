@@ -250,5 +250,5 @@ NIGHTS = {
                 "attack_delay": [3, 4, 5]
             }
         }
-    },
+    }
 }

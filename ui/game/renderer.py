@@ -31,6 +31,9 @@ class GameRenderer(Window):
         self.door_left_sprites = DoorLeftSprites(self.translator)
         self.door_right_sprites = DoorRightSprites(self.translator)
 
+        self.screamer_frame_delay = 0.05
+        self.screamer_post_delay = 0.5
+
     def _init_colors(self):
         curses.start_color()
         if curses.has_colors() and curses.COLORS >= 256:
@@ -142,7 +145,7 @@ class GameRenderer(Window):
         sprite_lines = self.cameras_map_sprite.get_cameras_map_sprite(current_camera, current_camera_position)
 
         camera_pattern = re.compile(r"\[\d+\]")
-        cam_tag_pattern = re.compile(r"\[CAM \d+\]")
+        cam_tag_pattern = re.compile(r"\[CAM_\d+\]")
 
         for i, line in enumerate(sprite_lines):
             y = start_y + i
@@ -177,23 +180,26 @@ class GameRenderer(Window):
 
     def render_screamer(self, killer_name):
         self.stdscr.clear()
-
-        lines = ANIMATRONICS[killer_name]["screamer_sprite"]
-
         self.stdscr.attron(curses.color_pair(10))
 
-        for i in range(3, 30):
-            self.stdscr.move(i, 0)
-            self.stdscr.clrtoeol()
+        frames = ANIMATRONICS[killer_name]["screamer_sprites"]
 
-        for idx, line in enumerate(lines):
-            if 3 + idx >= 30:
-                break
-            self.stdscr.addstr(3 + idx, 0, line[:100])
+        for frame in frames:
+            for i in range(3, 30):
+                self.stdscr.move(i, 0)
+                self.stdscr.clrtoeol()
+
+            for idx, line in enumerate(frame):
+                if 3 + idx >= 30:
+                    break
+                self.stdscr.addstr(3 + idx, 0, line[:100])
+
+            self.stdscr.refresh()
+            time.sleep(self.screamer_frame_delay)
 
         self.stdscr.attroff(curses.color_pair(10))
-        self.stdscr.refresh()
-        time.sleep(3)
+
+        time.sleep(self.screamer_post_delay)
 
     def render_game_over(self):
         anim_info = {

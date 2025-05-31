@@ -1,4 +1,7 @@
-from ui.sprites.screamers import BONNIE_SCREAMER_DARK, CHICA_SCREAMER_DARK, FREADDY_SCREAMER_DARK, FOXY_SCREAMER_DARK
+from ui.sprites.screamers.bonnie import BONNIE_SCREAMER_FRAMES
+from ui.sprites.screamers.foxy import FOXY_SCREAMER_FRAMES
+from ui.sprites.screamers.chica import CHICA_SCREAMER_FRAMES
+from ui.sprites.screamers.freddy import FREDDY_SCREAMER_FRAMES
 
 ANIMATRONICS = {
     "Bonnie": {
@@ -16,7 +19,7 @@ ANIMATRONICS = {
             "type": "position",
             "position": 8
         },
-        "screamer_sprite": BONNIE_SCREAMER_DARK
+        "screamer_sprites": BONNIE_SCREAMER_FRAMES
     },
     "Chica": {
         "default_position_index": 1,
@@ -33,7 +36,7 @@ ANIMATRONICS = {
             "type": "position",
             "position": 10
         },
-        "screamer_sprite": CHICA_SCREAMER_DARK
+        "screamer_sprites": CHICA_SCREAMER_FRAMES
     },
     "Freddy": {
         "default_position_index": 1,
@@ -49,7 +52,7 @@ ANIMATRONICS = {
             "number": 3,
             "position": 10
         },
-        "screamer_sprite": FREADDY_SCREAMER_DARK
+        "screamer_sprites": FREDDY_SCREAMER_FRAMES
     },
     "Foxy": {
         "default_position_index": 12,
@@ -62,6 +65,6 @@ ANIMATRONICS = {
             "position": 8,
             "power_cost": 5,
         },
-        "screamer_sprite": FOXY_SCREAMER_DARK
+        "screamer_sprites": FOXY_SCREAMER_FRAMES
     }
 }

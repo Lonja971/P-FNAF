@@ -14,8 +14,8 @@ class MainWindow(Window):
 
     def confirm_new_game(self, wm):
         self.confirming_new_game = True
-        print(f"{self.left_padding}{wm.translator.t("are_you_sure_new_game")}")
-        print(f"{self.left_padding}{wm.translator.t("confirm_new_game", confirm_key=self.confirm_key.upper())}")
+        print(f"{self.left_padding}{wm.translator.t('are_you_sure_new_game')}")
+        print(f"{self.left_padding}{wm.translator.t('confirm_new_game', confirm_key=self.confirm_key.upper())}")
 
     def next_avaible_night(self, next_night_index):
         if next_night_index in NIGHTS:
@@ -41,14 +41,14 @@ class MainWindow(Window):
         if self.is_first:
             clear()
             print(LOGO_PICTURE_DARK)
-            print(f"{self.left_padding}{wm.translator.t("have_a_good_shift", name=save["player"]["name"])}!")
+            print(f"{self.left_padding}{wm.translator.t('have_a_good_shift', name=save['player']['name'])}!")
             if save["record_night"]:
-                print(f"{self.left_padding}{wm.translator.t("record_night")}: {save["record_night"]}")
+                print(f"{self.left_padding}{wm.translator.t('record_night')}: {save['record_night']}")
             print(" ")
 
             self.menu_actions = render_menu([
                 (wm.translator.t("new_game"), None, lambda wm: self.confirm_new_game(wm)),
-                (f"{wm.translator.t("night")} {next_avaible_night}", None, lambda wm: wm.switch_to("game", save["player"]["name"], next_avaible_night)),
+                (f"{wm.translator.t('night')} {next_avaible_night}", None, lambda wm: wm.switch_to("game", save["player"]["name"], next_avaible_night)),
                 (wm.translator.t("change_language"), None, lambda wm: wm.switch_to("change_lanquage")),
                 (wm.translator.t("logout"), "q", lambda wm: wm.exit()),
             ], self.left_padding)

@@ -3,3 +3,4 @@ photos
 __pycache__
 config/save.json
 config.json
+ui/sounds
